@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atendimentos - Calango</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --laranja-calango: #ff6b00;
+            --cinza-escuro: #212529;
+            --cinza-corpo: #f4f6f9;
+        }
+
+        body {
+            background-color: var(--cinza-corpo);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            background-color: var(--cinza-escuro);
+            color: white;
+            z-index: 100;
+        }
+
+        .sidebar .nav-link {
+            color: #adb5bd;
+            padding: 12px 20px;
+            margin: 5px 10px;
+            border-radius: 8px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .sidebar .nav-link:hover,
+        .sidebar .nav-link.active {
+            background-color: var(--laranja-calango);
+            color: white;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        .lista-scroll-atendimentos {
+            max-height: 62vh;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .lista-scroll-atendimentos::-webkit-scrollbar { width: 6px; }
+        .lista-scroll-atendimentos::-webkit-scrollbar-thumb { background-color: #ced4da; border-radius: 10px; }
+
+        .atendimento-linha {
+            background: white;
+            border-radius: 8px;
+            padding: 14px 20px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: all 0.2s ease-in-out;
+        }
+
+        .atendimento-linha:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .nav-link-calango {
+            color: var(--cinza-escuro) !important;
+            font-weight: 600;
+            border: none !important;
+            padding: 12px 20px;
+        }
+
+        .nav-link-calango.active {
+            color: var(--laranja-calango) !important;
+            border-bottom: 3px solid var(--laranja-calango) !important;
+            background-color: transparent !important;
+        }
+
+        .btn-calango {
+            background-color: var(--laranja-calango);
+            border: 1px solid var(--laranja-calango);
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-calango:hover { background-color: #e05e00; border-color: #e05e00; color: white; }
+
+        .btn-tabela-precos {
+            background-color: transparent;
+            border: 1px solid var(--laranja-calango);
+            color: var(--laranja-calango);
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-tabela-precos:hover { background-color: var(--laranja-calango); color: white; }
+
+        .servico-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--laranja-calango);
+            transition: all 0.2s;
+        }
+
+        .servico-item:hover { background: #fff3e8; }
+
+        .servico-tag-badge {
+            background-color: var(--laranja-calango);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+            text-transform: lowercase;
+        }
+
+        .valor-badge { font-weight: 700; color: #198754; font-size: 0.95rem; }
+
+        .valor-atendimento { font-weight: 700; color: #198754; font-size: 0.9rem; }
+        .valor-atendimento.sem-valor { color: #adb5bd; font-weight: 400; font-size: 0.8rem; font-style: italic; }
+
+        .descricao-servicos { font-size: 0.8rem; color: #6c757d; }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar d-flex flex-column justify-content-between p-3">
+        <div>
+            <div class="text-center my-4">
+                <img th:src="@{/images/calango.png}" src="/images/calango.png" alt="Logo" width="50" class="mb-2" />
+                <h5 class="fw-bold m-0" style="color: var(--laranja-calango); letter-spacing: 1px;">CALANGO</h5>
+            </div>
+            <hr class="text-secondary">
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li><a th:href="@{/dashboard}" href="#" class="nav-link"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a></li>
+                <li><a href="#" class="nav-link active"><i class="fa-solid fa-calendar-check me-2"></i> Atendimentos</a></li>
+                <li><a href="#" class="nav-link"><i class="fa-solid fa-wallet me-2"></i> Finanças</a></li>
+                <li><a href="#" class="nav-link"><i class="fa-solid fa-tags me-2"></i> Categorias</a></li>
+            </ul>
+        </div>
+        <div>
+            <hr class="text-secondary">
+            <a th:href="@{/}" class="nav-link text-danger text-center fw-bold">
+                <i class="fa-solid fa-right-from-bracket me-2"></i> Sair do Sistema
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+
+        <!-- HEADER -->
+        <div class="card p-3 shadow-sm border-0 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-5">
+                    <h3 class="fw-bold text-dark m-0">&#x1F98E; Painel de Atendimentos</h3>
+                    <p class="text-muted small m-0">Controle otimizado para alta demanda diária.</p>
+                </div>
+                <div class="col-md-7">
+                    <div class="d-flex flex-wrap gap-2 justify-content-md-end align-items-center">
+                        <!-- Tabela de Preços -->
+                        <button type="button" class="btn btn-tabela-precos btn-sm px-3"
+                            data-bs-toggle="modal" data-bs-target="#modalTabelaPrecos">
+                            <i class="fa-solid fa-tags me-2"></i> Tabela de Preços
+                        </button>
+                        
+                        <!-- Busca por Data -->
+                        <form th:action="@{/atendimentos}" method="GET" class="m-0">
+                            <div class="input-group input-group-sm" style="max-width: 260px;">
+                                <span class="input-group-text bg-white text-muted border-end-0" style="border-radius: 8px 0 0 8px; border-color: #dee2e6;"><i class="fa-solid fa-calendar-days"></i></span>
+                                <input type="date" name="dataFiltro" class="form-control border-start-0 border-end-0 px-2" style="font-size: 0.85rem; border-color: #dee2e6;"
+                                    th:value="${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''}"
+                                    title="Buscar data retroativa no histórico">
+                                <button type="submit" class="btn btn-dark fw-bold px-3" style="font-size: 0.8rem; border-radius: 0 8px 8px 0; border-color: #343a40;">Buscar</button>
+                            </div>
+                        </form>
+                        
+                        <!-- Novo Cadastro -->
+                        <button type="button" class="btn btn-calango btn-sm fw-bold px-3"
+                            data-bs-toggle="modal" data-bs-target="#modalNovoAtendimento">
+                            <i class="fa-solid fa-plus me-2"></i> Novo Cadastro
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTA DE ATENDIMENTOS -->
+        <div class="card shadow-sm border-0 p-3">
+            <ul class="nav nav-tabs mb-3" id="atendimentosTabs" role="tablist" style="border-bottom: 2px solid #dee2e6;">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link nav-link-calango active" id="hoje-tab" data-bs-toggle="tab"
+                        data-bs-target="#hoje" type="button" role="tab">
+                        <i class="fa-solid fa-list-check me-2 text-primary"></i>Registros da Data Selecionada
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link nav-link-calango text-muted" id="semana-tab" data-bs-toggle="tab"
+                        data-bs-target="#semana" type="button" role="tab">
+                        <i class="fa-solid fa-clock-rotate-left me-2 text-success"></i>Sobre o Histórico
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="atendimentosTabsContent">
+
+                <div class="tab-pane fade show active" id="hoje" role="tabpanel">
+                    <div class="lista-scroll-atendimentos" id="listaAtendimentosContainer">
+
+                        <div th:if="${#lists.isEmpty(atendimentos)}" class="text-center text-muted my-5">
+                            <i class="fa-regular fa-folder-open fs-2 mb-2"></i>
+                            <p class="small">Nenhum atendimento encontrado para o dia selecionado.</p>
+                        </div>
+
+                        <div th:each="atend : ${atendimentos}"
+                            class="atendimento-linha d-flex align-items-center row g-2"
+                            th:style="'border-left: 5px solid ' + (${atend.origem == 'MANUAL'} ? '#212529' : '#25d366')">
+
+                            <div class="col-md-3">
+                                <h6 class="fw-bold text-dark m-0" th:text="${atend.cliente}">Nome do Cliente</h6>
+                                <span class="small text-muted">
+                                    <i class="fa-regular fa-clock me-1"></i>
+                                    <span th:text="${atend.horaAtendimento}">10:00</span>
+                                </span>
+                            </div>
+
+                            <div class="col-md-3">
+                                <p class="text-muted small m-0 text-truncate" th:text="${atend.descricao}">Servicos</p>
+                            </div>
+
+                            <div class="col-md-2 text-md-center">
+                                <span th:if="${atend.origem == 'WHATSAPP'}"
+                                    class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1"
+                                    style="font-size: 0.75rem;">
+                                    <i class="fa-brands fa-whatsapp me-1"></i>Whats
+                                </span>
+                                <span th:if="${atend.origem == 'MANUAL'}"
+                                    class="badge bg-light text-dark border px-2 py-1" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-user-pen me-1"></i>Manual
+                                </span>
+                            </div>
+
+                            <div class="col-md-1 text-md-center">
+                                <span th:if="${atend.valor != null}" class="valor-atendimento"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(atend.valor, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</span>
+                                <span th:if="${atend.valor == null}" class="valor-atendimento sem-valor">--</span>
+                            </div>
+
+                            <div class="col-md-3 text-md-end d-flex align-items-center justify-content-end gap-1">
+                                <a th:href="@{/atendimentos/realizar/{id}(id=${atend.id})}"
+                                    class="btn btn-sm btn-success text-white py-1 px-2 d-inline-flex align-items-center gap-1 fw-bold"
+                                    style="border-radius: 8px; font-size: 0.75rem;" title="Atendimento Realizado">
+                                    <i class="fa-solid fa-check"></i> <span>Realizado</span>
+                                </a>
+                                <button class="btn btn-sm btn-light text-secondary"
+                                    th:attr="data-id=${atend.id},
+                                             data-cliente=${atend.cliente},
+                                             data-descricao=${atend.descricao},
+                                             data-data=${atend.dataAtendimento},
+                                             data-hora=${atend.horaAtendimento},
+                                             data-origem=${atend.origem},
+                                             data-valor=${atend.valor != null ? atend.valor : ''}"
+                                    onclick="abrirEditarModalFromBtn(this)">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="btn btn-sm btn-light text-danger"
+                                    th:attr="data-id=${atend.id}"
+                                    onclick="abrirExcluirModalFromBtn(this)">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- PAGINAÇÃO DOS ATENDIMENTOS -->
+                    <div id="paginacaoAtendimentosContainer" class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top" style="display: none;">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted me-1" style="font-size:0.78rem;">Exibir:</span>
+                            <button type="button" id="btnAtendPageSize5" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">5</button>
+                            <button type="button" id="btnAtendPageSize10" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">10</button>
+                            <button type="button" id="btnAtendPageSize20" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">20</button>
+                            <button type="button" id="btnAtendPageSize50" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">50</button>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" id="btnAtendPaginaAnterior" class="btn btn-light btn-sm py-1 px-2 border" style="font-size:0.75rem;">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <span id="infoAtendPaginacao" class="small fw-semibold text-muted" style="font-size:0.75rem;">Pág. 1 de 1</span>
+                            <button type="button" id="btnAtendPaginaProxima" class="btn btn-light btn-sm py-1 px-2 border" style="font-size:0.75rem;">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="semana" role="tabpanel">
+                    <div class="lista-scroll-atendimentos" id="listaHistoricoContainer">
+
+                        <div th:if="${#lists.isEmpty(atendimentosRealizados)}" class="text-center text-muted my-5">
+                            <i class="fa-regular fa-folder-open fs-2 mb-2"></i>
+                            <p class="small">Nenhum atendimento realizado nesta data.</p>
+                        </div>
+
+                        <div th:each="atend : ${atendimentosRealizados}"
+                            class="atendimento-linha d-flex align-items-center row g-2"
+                            style="border-left: 5px solid #198754;">
+
+                            <div class="col-md-3">
+                                <h6 class="fw-bold text-dark m-0" th:text="${atend.cliente}">Nome do Cliente</h6>
+                                <span class="small text-muted">
+                                    <i class="fa-regular fa-clock me-1"></i>
+                                    <span th:text="${atend.horaAtendimento}">10:00</span>
+                                </span>
+                            </div>
+
+                            <div class="col-md-3">
+                                <p class="text-muted small m-0 text-truncate" th:text="${atend.descricao}">Servicos</p>
+                            </div>
+
+                            <div class="col-md-2 text-md-center">
+                                <span class="badge bg-success-subtle text-success border border-success px-2 py-1" style="font-size: 0.75rem; font-weight: 600;">
+                                    <i class="fa-solid fa-circle-check me-1"></i>Realizado
+                                </span>
+                            </div>
+
+                            <div class="col-md-2 text-md-center">
+                                <span th:if="${atend.valor != null}" class="valor-atendimento text-success fw-bold"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(atend.valor, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</span>
+                                <span th:if="${atend.valor == null}" class="valor-atendimento sem-valor">--</span>
+                            </div>
+
+                            <div class="col-md-2 text-md-end">
+                                <span class="badge bg-light text-secondary border px-2 py-1 small" th:text="${atend.origem}">MANUAL</span>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- PAGINAÇÃO DO HISTÓRICO -->
+                    <div id="paginacaoHistoricoContainer" class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top" style="display: none;">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted me-1" style="font-size:0.78rem;">Exibir:</span>
+                            <button type="button" id="btnHistPageSize5" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">5</button>
+                            <button type="button" id="btnHistPageSize10" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">10</button>
+                            <button type="button" id="btnHistPageSize20" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">20</button>
+                            <button type="button" id="btnHistPageSize50" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">50</button>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" id="btnHistPaginaAnterior" class="btn btn-light btn-sm py-1 px-2 border" style="font-size:0.75rem;">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <span id="infoHistPaginacao" class="small fw-semibold text-muted" style="font-size:0.75rem;">Pág. 1 de 1</span>
+                            <button type="button" id="btnHistPaginaProxima" class="btn btn-light btn-sm py-1 px-2 border" style="font-size:0.75rem;">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: TABELA DE PRECOS ===== -->
+    <div class="modal fade" id="modalTabelaPrecos" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">
+                            <i class="fa-solid fa-tags me-2" style="color: var(--laranja-calango);"></i>Tabela de Preços
+                        </h5>
+                        <p class="text-muted small mb-0">Cadastre tags e valores padrão dos seus serviços.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card border-0 bg-light rounded-3 p-3 mb-3">
+                        <p class="small fw-bold text-muted mb-2"><i class="fa-solid fa-plus me-1"></i>Adicionar Serviço</p>
+                        <div class="row g-2 align-items-end">
+                            <div class="col-5">
+                                <label class="form-label small fw-bold mb-1">Tag do Serviço</label>
+                                <input type="text" id="novaTag" class="form-control form-control-sm" placeholder="ex: corte" autocomplete="off">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label small fw-bold mb-1">Valor (R$)</label>
+                                <input type="number" id="novoValor" class="form-control form-control-sm" placeholder="0,00" min="0" step="0.01">
+                            </div>
+                            <div class="col-3">
+                                <button type="button" class="btn btn-calango btn-sm w-100" id="btnAdicionarServico">
+                                    <i class="fa-solid fa-check me-1"></i>Salvar
+                                </button>
+                            </div>
+                        </div>
+                        <div id="erroTabela" class="text-danger small mt-2" style="display:none;"></div>
+                    </div>
+                    <div id="listaServicosTabela">
+                        <p class="text-center text-muted small py-3" id="msgSemServicos" style="display:none;">
+                            <i class="fa-solid fa-circle-info me-1"></i>Nenhum serviço cadastrado ainda.
+                        </p>
+                    </div>
+
+                    <!-- PAGINAÇÃO DA TABELA DE PREÇOS -->
+                    <div id="paginacaoTabelaContainer" class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top" style="display: none;">
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted me-1" style="font-size:0.78rem;">Exibir:</span>
+                            <button type="button" id="btnPageSize5" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">5</button>
+                            <button type="button" id="btnPageSize10" class="btn btn-sm py-0 px-2 fw-bold" style="font-size:0.75rem;">10</button>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" id="btnPaginaAnterior" class="btn btn-light btn-sm py-1 px-2 border" style="font-size:0.75rem;">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </button>
+                            <span id="infoPaginacao" class="small fw-semibold text-muted" style="font-size:0.75rem;">Pág. 1 de 1</span>
+                            <button type="button" id="btnPaginaProxima" class="btn btn-light btn-sm py-1 px-2 border" style="font-size:0.75rem;">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light btn-sm fw-bold" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: NOVO ATENDIMENTO ===== -->
+    <div class="modal fade" id="modalNovoAtendimento" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="fw-bold text-dark m-0">Agendar Novo Atendimento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/atendimentos/salvar}" method="POST" id="formNovoAtendimento" onsubmit="prepararSubmitNovo(event)">
+                    <input type="hidden" name="descricao" id="novoDescricaoHidden">
+                    <input type="hidden" name="valor"     id="novoValorHidden">
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nome do Cliente</label>
+                            <input type="text" name="cliente" id="novoCliente" class="form-control" required placeholder="Ex: Lucas Mendes">
+                        </div>
+
+                        <!-- SECAO DE SERVICOS MULTIPLOS -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Serviços</label>
+                            <div class="input-group input-group-sm mb-2">
+                                <input type="text" id="novoServicoTag" class="form-control"
+                                    placeholder="Tag ou descrição (ex: corte)..." autocomplete="off">
+                                <input type="number" id="novoServicoValor" class="form-control"
+                                    style="max-width:110px;" placeholder="R$ 0,00" min="0" step="0.01">
+                                <button type="button" class="btn btn-calango btn-sm px-3" id="btnAdicionarItem" title="Adicionar">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+
+                            <!-- Dropdown sugestoes -->
+                            <div id="sugestoesContainer" style="display:none; position:relative; z-index:1050;">
+                                <div id="sugestoesList" class="border rounded bg-white shadow-sm"
+                                    style="max-height:140px; overflow-y:auto;"></div>
+                            </div>
+
+                            <!-- Chips dos servicos -->
+                            <div id="novoChipsContainer" class="d-flex flex-wrap gap-2 mt-2" style="min-height:36px;"></div>
+
+                            <!-- Total -->
+                            <div id="novoTotalContainer" class="mt-3 p-3 rounded-3 d-none"
+                                style="background: linear-gradient(90deg,#fff8f2,#fff3e8); border:1.5px solid #ff6b00;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small fw-semibold text-muted">Total do atendimento:</span>
+                                    <span id="novoTotalValor" class="fw-bold fs-5" style="color:#ff6b00;">R$ 0,00</span>
+                                </div>
+                                <div id="novoResumoServicos" class="text-muted mt-1" style="font-size:0.78rem;"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Data</label>
+                                <input type="date" name="data" id="novaData" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Horário</label>
+                                <input type="time" name="hora" id="novaHora" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light btn-sm fw-bold" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-calango btn-sm">Agendar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: EDITAR ATENDIMENTO ===== -->
+    <div class="modal fade" id="modalEditarAtendimento" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="fw-bold text-dark m-0">Editar Detalhes do Atendimento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/atendimentos/editar}" method="POST" id="formEditarAtendimento" onsubmit="prepararSubmitEditar(event)">
+                    <input type="hidden" id="editId"              name="id">
+                    <input type="hidden" id="editDescricaoHidden" name="descricao">
+                    <input type="hidden" id="editValorHidden"     name="valor">
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Nome do Cliente</label>
+                            <input type="text" id="editCliente" name="cliente" class="form-control" required>
+                        </div>
+
+                        <!-- SECAO DE SERVICOS MULTIPLOS -->
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Serviços</label>
+                            <div class="input-group input-group-sm mb-2">
+                                <input type="text" id="editServicoTag" class="form-control"
+                                    placeholder="Tag ou descrição (ex: sobrancelha)..." autocomplete="off">
+                                <input type="number" id="editServicoValor" class="form-control"
+                                    style="max-width:110px;" placeholder="R$ 0,00" min="0" step="0.01">
+                                <button type="button" class="btn btn-calango btn-sm px-3" id="btnEditAdicionarItem" title="Adicionar">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+
+                            <!-- Dropdown sugestoes editar -->
+                            <div id="editSugestoesContainer" style="display:none; position:relative; z-index:1050;">
+                                <div id="editSugestoesList" class="border rounded bg-white shadow-sm"
+                                    style="max-height:140px; overflow-y:auto;"></div>
+                            </div>
+
+                            <!-- Chips -->
+                            <div id="editChipsContainer" class="d-flex flex-wrap gap-2 mt-2" style="min-height:36px;"></div>
+
+                            <!-- Total -->
+                            <div id="editTotalContainer" class="mt-3 p-3 rounded-3 d-none"
+                                style="background: linear-gradient(90deg,#fff8f2,#fff3e8); border:1.5px solid #ff6b00;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="small fw-semibold text-muted">Total do atendimento:</span>
+                                    <span id="editTotalValor" class="fw-bold fs-5" style="color:#ff6b00;">R$ 0,00</span>
+                                </div>
+                                <div id="editResumoServicos" class="text-muted mt-1" style="font-size:0.78rem;"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Data</label>
+                                <input type="date" id="editData" name="data" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-bold">Horário</label>
+                                <input type="time" id="editHora" name="hora" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light btn-sm fw-bold" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-calango btn-sm">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: EXCLUIR ATENDIMENTO ===== -->
+    <div class="modal fade" id="modalExcluirAtendimento" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <i class="fa-solid fa-triangle-exclamation text-danger fs-1 mb-3"></i>
+                    <h6 class="fw-bold text-dark">Excluir Atendimento?</h6>
+                    <p class="text-muted small mb-0">Essa ação não pode ser desfeita do painel do Calango.</p>
+                </div>
+                <div class="d-flex border-top">
+                    <button type="button" class="btn btn-light w-50 rounded-0 border-end py-2 small fw-bold"
+                        data-bs-dismiss="modal">Voltar</button>
+                    <a id="btnConfirmarExclusao" href="#"
+                        class="btn btn-white text-danger w-50 rounded-0 py-2 small fw-bold text-decoration-none text-center">
+                        Sim, Excluir
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ============================================================
+        // ESTADO GLOBAL
+        // ============================================================
+        let servicosTabela = [];
+        let itensNovo      = [];
+        let itensEditar    = [];
+        let paginaAtual    = 1;
+        let itensPorPagina = 5;
+
+        // ============================================================
+        // CARREGAMENTO DE SERVICOS DO BACKEND
+        // ============================================================
+        async function carregarServicos() {
+            try {
+                const res = await fetch('/servicos-tabela');
+                servicosTabela = await res.json();
+                renderizarListaServicos();
+            } catch (e) {
+                console.error('Erro ao carregar servicos:', e);
+            }
+        }
+
+        function fmt(valor) {
+            return parseFloat(valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // ============================================================
+        // TABELA DE PRECOS: paginacao e lista de servicos
+        // ============================================================
+        function atualizarBotoesTamanhoPagina() {
+            const btn5 = document.getElementById('btnPageSize5');
+            const btn10 = document.getElementById('btnPageSize10');
+            if (!btn5 || !btn10) return;
+            if (itensPorPagina === 5) {
+                btn5.className = 'btn btn-calango btn-sm py-0 px-2 fw-bold text-white';
+                btn10.className = 'btn btn-light btn-sm py-0 px-2 border text-muted';
+            } else {
+                btn5.className = 'btn btn-light btn-sm py-0 px-2 border text-muted';
+                btn10.className = 'btn btn-calango btn-sm py-0 px-2 fw-bold text-white';
+            }
+        }
+
+        function renderizarListaServicos() {
+            const container = document.getElementById('listaServicosTabela');
+            const msgVazia  = document.getElementById('msgSemServicos');
+            const paginacaoContainer = document.getElementById('paginacaoTabelaContainer');
+            
+            Array.from(container.querySelectorAll('.servico-item')).forEach(el => el.remove());
+            
+            if (servicosTabela.length === 0) { 
+                msgVazia.style.display = 'block'; 
+                paginacaoContainer.style.display = 'none';
+                return; 
+            }
+            msgVazia.style.display = 'none';
+            
+            const totalItens = servicosTabela.length;
+            const totalPaginas = Math.ceil(totalItens / itensPorPagina);
+            
+            if (paginaAtual > totalPaginas) {
+                paginaAtual = Math.max(1, totalPaginas);
+            }
+            
+            const inicio = (paginaAtual - 1) * itensPorPagina;
+            const fim = Math.min(inicio + itensPorPagina, totalItens);
+            const itensPagina = servicosTabela.slice(inicio, fim);
+            
+            itensPagina.forEach(s => {
+                const el = document.createElement('div');
+                el.className = 'servico-item';
+                el.innerHTML =
+                    '<div class="d-flex align-items-center gap-2"><span class="servico-tag-badge">' + s.tag + '</span></div>' +
+                    '<div class="d-flex align-items-center gap-3">' +
+                    '<span class="valor-badge">R$ ' + fmt(s.valor) + '</span>' +
+                    '<button class="btn btn-sm btn-light text-danger py-0 px-2" onclick="deletarServico(' + s.id + ')">' +
+                    '<i class="fa-solid fa-trash-can"></i></button></div>';
+                container.appendChild(el);
+            });
+            
+            paginacaoContainer.style.display = 'flex';
+            document.getElementById('infoPaginacao').textContent = 'Pág. ' + paginaAtual + ' de ' + totalPaginas;
+            
+            document.getElementById('btnPaginaAnterior').disabled = (paginaAtual === 1);
+            document.getElementById('btnPaginaProxima').disabled = (paginaAtual === totalPaginas);
+            
+            if (paginaAtual === 1) {
+                document.getElementById('btnPaginaAnterior').classList.add('opacity-50');
+            } else {
+                document.getElementById('btnPaginaAnterior').classList.remove('opacity-50');
+            }
+            if (paginaAtual === totalPaginas) {
+                document.getElementById('btnPaginaProxima').classList.add('opacity-50');
+            } else {
+                document.getElementById('btnPaginaProxima').classList.remove('opacity-50');
+            }
+        }
+
+        document.getElementById('btnAdicionarServico').addEventListener('click', async function () {
+            const tag      = document.getElementById('novaTag').value.trim().toLowerCase();
+            const valorStr = document.getElementById('novoValor').value;
+            const erroDiv  = document.getElementById('erroTabela');
+            erroDiv.style.display = 'none';
+            if (!tag) { erroDiv.textContent = 'Informe uma tag.'; erroDiv.style.display = 'block'; return; }
+            if (!valorStr || isNaN(parseFloat(valorStr)) || parseFloat(valorStr) < 0) {
+                erroDiv.textContent = 'Informe um valor valido.'; erroDiv.style.display = 'block'; return;
+            }
+            const fd = new FormData();
+            fd.append('tag', tag); fd.append('valor', parseFloat(valorStr).toFixed(2));
+            const res = await fetch('/servicos-tabela/salvar', { method: 'POST', body: fd });
+            if (res.ok) {
+                document.getElementById('novaTag').value = '';
+                document.getElementById('novoValor').value = '';
+                paginaAtual = 1;
+                await carregarServicos();
+            } else { erroDiv.textContent = 'Erro ao salvar.'; erroDiv.style.display = 'block'; }
+        });
+
+        async function deletarServico(id) {
+            const res = await fetch('/servicos-tabela/deletar/' + id, { method: 'POST' });
+            if (res.ok) await carregarServicos();
+        }
+
+        // ============================================================
+        // PAGINAÇÃO DA LISTA DE ATENDIMENTOS (Registros do Dia)
+        // ============================================================
+        let atendPaginaAtual = 1;
+        let atendItensPorPagina = 5; // Default size (5, 10, 20, 50)
+
+        function atualizarBotoesTamanhoPaginaAtend() {
+            const tamanhos = [5, 10, 20, 50];
+            tamanhos.forEach(size => {
+                const btn = document.getElementById('btnAtendPageSize' + size);
+                if (!btn) return;
+                if (atendItensPorPagina === size) {
+                    btn.className = 'btn btn-calango btn-sm py-0 px-2 fw-bold text-white';
+                } else {
+                    btn.className = 'btn btn-light btn-sm py-0 px-2 border text-muted';
+                }
+            });
+        }
+
+        function renderizarPaginacaoAtendimentos() {
+            const container = document.getElementById('listaAtendimentosContainer');
+            if (!container) return;
+            
+            const linhas = Array.from(container.querySelectorAll('.atendimento-linha'));
+            const paginacaoContainer = document.getElementById('paginacaoAtendimentosContainer');
+            
+            if (linhas.length === 0) {
+                if (paginacaoContainer) paginacaoContainer.style.display = 'none';
+                return;
+            }
+            
+            if (paginacaoContainer) paginacaoContainer.style.display = 'flex';
+            
+            const totalItens = linhas.length;
+            const totalPaginas = Math.ceil(totalItens / atendItensPorPagina);
+            
+            if (atendPaginaAtual > totalPaginas) {
+                atendPaginaAtual = Math.max(1, totalPaginas);
+            }
+            
+            const inicio = (atendPaginaAtual - 1) * atendItensPorPagina;
+            const fim = inicio + atendItensPorPagina;
+            
+            linhas.forEach((linha, idx) => {
+                if (idx >= inicio && idx < fim) {
+                    linha.style.display = '';
+                    linha.classList.add('d-flex');
+                } else {
+                    linha.style.display = 'none';
+                    linha.classList.remove('d-flex');
+                }
+            });
+            
+            const infoEl = document.getElementById('infoAtendPaginacao');
+            if (infoEl) infoEl.textContent = 'Pág. ' + atendPaginaAtual + ' de ' + totalPaginas;
+            
+            const btnAnt = document.getElementById('btnAtendPaginaAnterior');
+            const btnProx = document.getElementById('btnAtendPaginaProxima');
+            
+            if (btnAnt) {
+                btnAnt.disabled = (atendPaginaAtual === 1);
+                if (atendPaginaAtual === 1) btnAnt.classList.add('opacity-50');
+                else btnAnt.classList.remove('opacity-50');
+            }
+            if (btnProx) {
+                btnProx.disabled = (atendPaginaAtual === totalPaginas);
+                if (atendPaginaAtual === totalPaginas) btnProx.classList.add('opacity-50');
+                else btnProx.classList.remove('opacity-50');
+            }
+        }
+
+        // ============================================================
+        // PAGINAÇÃO DO HISTÓRICO DE ATENDIMENTOS REALIZADOS
+        // ============================================================
+        let histPaginaAtual = 1;
+        let histItensPorPagina = 5; // Default size (5, 10, 20, 50)
+
+        function atualizarBotoesTamanhoPaginaHist() {
+            const tamanhos = [5, 10, 20, 50];
+            tamanhos.forEach(size => {
+                const btn = document.getElementById('btnHistPageSize' + size);
+                if (!btn) return;
+                if (histItensPorPagina === size) {
+                    btn.className = 'btn btn-calango btn-sm py-0 px-2 fw-bold text-white';
+                } else {
+                    btn.className = 'btn btn-light btn-sm py-0 px-2 border text-muted';
+                }
+            });
+        }
+
+        function renderizarPaginacaoHistorico() {
+            const container = document.getElementById('listaHistoricoContainer');
+            if (!container) return;
+            
+            const linhas = Array.from(container.querySelectorAll('.atendimento-linha'));
+            const paginacaoContainer = document.getElementById('paginacaoHistoricoContainer');
+            
+            if (linhas.length === 0) {
+                if (paginacaoContainer) paginacaoContainer.style.display = 'none';
+                return;
+            }
+            
+            if (paginacaoContainer) paginacaoContainer.style.display = 'flex';
+            
+            const totalItens = linhas.length;
+            const totalPaginas = Math.ceil(totalItens / histItensPorPagina);
+            
+            if (histPaginaAtual > totalPaginas) {
+                histPaginaAtual = Math.max(1, totalPaginas);
+            }
+            
+            const inicio = (histPaginaAtual - 1) * histItensPorPagina;
+            const fim = inicio + histItensPorPagina;
+            
+            linhas.forEach((linha, idx) => {
+                if (idx >= inicio && idx < fim) {
+                    linha.style.display = '';
+                    linha.classList.add('d-flex');
+                } else {
+                    linha.style.display = 'none';
+                    linha.classList.remove('d-flex');
+                }
+            });
+            
+            const infoEl = document.getElementById('infoHistPaginacao');
+            if (infoEl) infoEl.textContent = 'Pág. ' + histPaginaAtual + ' de ' + totalPaginas;
+            
+            const btnAnt = document.getElementById('btnHistPaginaAnterior');
+            const btnProx = document.getElementById('btnHistPaginaProxima');
+            
+            if (btnAnt) {
+                btnAnt.disabled = (histPaginaAtual === 1);
+                if (histPaginaAtual === 1) btnAnt.classList.add('opacity-50');
+                else btnAnt.classList.remove('opacity-50');
+            }
+            if (btnProx) {
+                btnProx.disabled = (histPaginaAtual === totalPaginas);
+                if (histPaginaAtual === totalPaginas) btnProx.classList.add('opacity-50');
+                else btnProx.classList.remove('opacity-50');
+            }
+        }
+
+        // ============================================================
+        // CHIPS — SISTEMA DE MULTIPLOS SERVICOS
+        // ============================================================
+        function buscarValorTag(tag) {
+            const s = servicosTabela.find(s => s.tag.toLowerCase() === tag.toLowerCase().trim());
+            return s ? parseFloat(s.valor) : null;
+        }
+
+        function atualizarTotal(itens, prefix) {
+            const chipsEl    = document.getElementById(prefix === 'novo' ? 'novoChipsContainer'  : 'editChipsContainer');
+            const totalEl    = document.getElementById(prefix === 'novo' ? 'novoTotalContainer'  : 'editTotalContainer');
+            const totalValEl = document.getElementById(prefix === 'novo' ? 'novoTotalValor'      : 'editTotalValor');
+            const resumoEl   = document.getElementById(prefix === 'novo' ? 'novoResumoServicos'  : 'editResumoServicos');
+
+            chipsEl.innerHTML = '';
+            let total = 0;
+            const partes = [];
+
+            itens.forEach(function(item, idx) {
+                total += item.valor;
+                partes.push(item.tag + ': R$ ' + fmt(item.valor));
+
+                const chip = document.createElement('span');
+                chip.className = 'd-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill fw-semibold';
+                chip.style.cssText = 'background:#fff3e8;border:1.5px solid #ff6b00;color:#c94f00;font-size:0.8rem;white-space:nowrap;';
+                chip.innerHTML =
+                    '<i class="fa-solid fa-scissors" style="font-size:0.7rem;opacity:0.6;"></i>' +
+                    '<span>' + item.tag + '</span>' +
+                    '<span style="color:#198754;font-weight:700;margin-left:4px;">R$ ' + fmt(item.valor) + '</span>' +
+                    '<button type="button" onclick="removerItem(\'' + prefix + '\',' + idx + ')" ' +
+                    'style="border:none;background:none;color:#c94f00;font-size:1.1rem;line-height:1;padding:0 2px 0 4px;cursor:pointer;" title="Remover">&times;</button>';
+                chipsEl.appendChild(chip);
+            });
+
+            if (itens.length > 0) {
+                totalEl.classList.remove('d-none');
+                totalValEl.textContent = 'R$ ' + fmt(total);
+                resumoEl.textContent   = partes.join(' + ');
+            } else {
+                totalEl.classList.add('d-none');
+            }
+        }
+
+        function removerItem(prefix, idx) {
+            if (prefix === 'novo')   { itensNovo.splice(idx, 1);   atualizarTotal(itensNovo,   'novo'); }
+            if (prefix === 'editar') { itensEditar.splice(idx, 1); atualizarTotal(itensEditar, 'editar'); }
+        }
+
+        function adicionarItem(tagInputId, valorInputId, itensArray, prefix) {
+            const tagEl   = document.getElementById(tagInputId);
+            const valorEl = document.getElementById(valorInputId);
+            const tag     = tagEl.value.trim();
+            if (!tag) { tagEl.focus(); return; }
+
+            let valor = parseFloat(valorEl.value);
+            if (isNaN(valor) || valor < 0) {
+                const auto = buscarValorTag(tag);
+                if (auto !== null) { valor = auto; }
+                else { valorEl.focus(); return; }
+            }
+
+            itensArray.push({ tag: tag, valor: valor });
+            tagEl.value   = '';
+            valorEl.value = '';
+            tagEl.focus();
+
+            // Fecha dropdowns
+            document.getElementById('sugestoesContainer').style.display    = 'none';
+            document.getElementById('editSugestoesContainer').style.display = 'none';
+            atualizarTotal(itensArray, prefix);
+        }
+
+        // ============================================================
+        // DROPDOWN DE SUGESTOES (generico para ambos modais)
+        // ============================================================
+        function configurarSugestoes(tagInputId, valorInputId, containerId, listId, itensArray, prefix) {
+            const tagEl     = document.getElementById(tagInputId);
+            const valorEl   = document.getElementById(valorInputId);
+            const container = document.getElementById(containerId);
+            const listEl    = document.getElementById(listId);
+
+            tagEl.addEventListener('input', function () {
+                const texto = this.value.trim().toLowerCase();
+                listEl.innerHTML = '';
+                if (!texto) { container.style.display = 'none'; return; }
+                const matches = servicosTabela.filter(s =>
+                    s.tag.toLowerCase().startsWith(texto) || s.tag.toLowerCase().includes(texto));
+                if (matches.length === 0) { container.style.display = 'none'; return; }
+                matches.forEach(function(s) {
+                    const item = document.createElement('div');
+                    item.className = 'px-3 py-2 d-flex justify-content-between align-items-center';
+                    item.style.cssText = 'cursor:pointer;border-bottom:1px solid #f0f0f0;font-size:0.875rem;';
+                    item.innerHTML =
+                        '<span class="fw-bold" style="color:var(--laranja-calango)">' + s.tag + '</span>' +
+                        '<span class="text-success fw-bold">R$ ' + fmt(s.valor) + '</span>';
+                    item.addEventListener('mouseenter', function() { this.style.background = '#fff3e8'; });
+                    item.addEventListener('mouseleave', function() { this.style.background = ''; });
+                    item.addEventListener('mousedown', function(e) {
+                        e.preventDefault();
+                        tagEl.value   = s.tag;
+                        valorEl.value = parseFloat(s.valor).toFixed(2);
+                        container.style.display = 'none';
+                    });
+                    listEl.appendChild(item);
+                });
+                container.style.display = 'block';
+            });
+
+            tagEl.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    container.style.display = 'none';
+                    adicionarItem(tagInputId, valorInputId, itensArray, prefix);
+                }
+            });
+            tagEl.addEventListener('blur', function() {
+                setTimeout(function() { container.style.display = 'none'; }, 150);
+            });
+        }
+
+        // ============================================================
+        // BOTOES ADICIONAR ITEM
+        // ============================================================
+        document.getElementById('btnAdicionarItem').addEventListener('click', function() {
+            adicionarItem('novoServicoTag', 'novoServicoValor', itensNovo, 'novo');
+        });
+
+        document.getElementById('btnEditAdicionarItem').addEventListener('click', function() {
+            adicionarItem('editServicoTag', 'editServicoValor', itensEditar, 'editar');
+        });
+
+        // ============================================================
+        // SUBMIT: preenche hidden fields antes de enviar
+        // ============================================================
+        function prepararSubmitNovo(e) {
+            if (itensNovo.length === 0) {
+                e.preventDefault();
+                alert('Adicione pelo menos um servico ao atendimento.');
+                return;
+            }
+            document.getElementById('novoDescricaoHidden').value = itensNovo.map(function(i) { return i.tag; }).join(', ');
+            document.getElementById('novoValorHidden').value     = itensNovo.reduce(function(s, i) { return s + i.valor; }, 0).toFixed(2);
+        }
+
+        function prepararSubmitEditar(e) {
+            if (itensEditar.length === 0) {
+                e.preventDefault();
+                alert('Adicione pelo menos um servico ao atendimento.');
+                return;
+            }
+            document.getElementById('editDescricaoHidden').value = itensEditar.map(function(i) { return i.tag; }).join(', ');
+            document.getElementById('editValorHidden').value     = itensEditar.reduce(function(s, i) { return s + i.valor; }, 0).toFixed(2);
+        }
+
+        // ============================================================
+        // MODAL NOVO: limpar ao abrir
+        // ============================================================
+        document.getElementById('modalNovoAtendimento').addEventListener('show.bs.modal', function() {
+            itensNovo = [];
+            atualizarTotal(itensNovo, 'novo');
+            const agora = new Date();
+            document.getElementById('novaData').value         = agora.toISOString().split('T')[0];
+            document.getElementById('novaHora').value         = agora.toTimeString().substring(0, 5);
+            document.getElementById('novoCliente').value      = '';
+            document.getElementById('novoServicoTag').value   = '';
+            document.getElementById('novoServicoValor').value = '';
+            document.getElementById('sugestoesContainer').style.display = 'none';
+        });
+
+        // ============================================================
+        // MODAL EDITAR: popular com dados existentes
+        // ============================================================
+        function abrirEditarModalFromBtn(btn) {
+            const id         = btn.dataset.id;
+            const cliente    = btn.dataset.cliente;
+            const descricao  = btn.dataset.descricao;
+            const data       = btn.dataset.data;
+            const hora       = btn.dataset.hora;
+            const valorTotal = btn.dataset.valor;
+
+            document.getElementById('editId').value      = id;
+            document.getElementById('editCliente').value = cliente;
+            document.getElementById('editData').value    = data;
+            document.getElementById('editHora').value    = hora;
+
+            // Reconstroi lista de itens a partir da descricao salva
+            itensEditar = [];
+            if (descricao && descricao.trim() !== '') {
+                const tags  = descricao.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return t !== ''; });
+                const total = (valorTotal && valorTotal !== '') ? parseFloat(valorTotal) : 0;
+
+                if (tags.length === 1) {
+                    itensEditar.push({ tag: tags[0], valor: total });
+                } else {
+                    var somaConhecida = 0;
+                    var temp = tags.map(function(tag) {
+                        var v = buscarValorTag(tag);
+                        if (v !== null) { somaConhecida += v; return { tag: tag, valor: v }; }
+                        return { tag: tag, valor: 0 };
+                    });
+                    var resto = Math.max(0, total - somaConhecida);
+                    var idxSemValor = temp.findIndex(function(i) { return i.valor === 0; });
+                    if (idxSemValor >= 0 && resto > 0) temp[idxSemValor].valor = resto;
+                    itensEditar = temp;
+                }
+            }
+
+            document.getElementById('editServicoTag').value       = '';
+            document.getElementById('editServicoValor').value     = '';
+            document.getElementById('editSugestoesContainer').style.display = 'none';
+            atualizarTotal(itensEditar, 'editar');
+
+            new bootstrap.Modal(document.getElementById('modalEditarAtendimento')).show();
+        }
+
+        // ============================================================
+        // MODAL EXCLUIR
+        // ============================================================
+        function abrirExcluirModalFromBtn(btn) {
+            document.getElementById('btnConfirmarExclusao').href = '/atendimentos/deletar/' + btn.dataset.id;
+            new bootstrap.Modal(document.getElementById('modalExcluirAtendimento')).show();
+        }
+
+        // ============================================================
+        // INICIALIZACAO
+        // ============================================================
+        window.addEventListener('DOMContentLoaded', function() {
+            configurarSugestoes('novoServicoTag', 'novoServicoValor', 'sugestoesContainer',     'sugestoesList',     itensNovo,   'novo');
+            configurarSugestoes('editServicoTag', 'editServicoValor', 'editSugestoesContainer', 'editSugestoesList', itensEditar, 'editar');
+            
+            // Eventos de paginacao da tabela de precos
+            document.getElementById('btnPageSize5').addEventListener('click', function() {
+                itensPorPagina = 5;
+                paginaAtual = 1;
+                atualizarBotoesTamanhoPagina();
+                renderizarListaServicos();
+            });
+            document.getElementById('btnPageSize10').addEventListener('click', function() {
+                itensPorPagina = 10;
+                paginaAtual = 1;
+                atualizarBotoesTamanhoPagina();
+                renderizarListaServicos();
+            });
+            document.getElementById('btnPaginaAnterior').addEventListener('click', function() {
+                if (paginaAtual > 1) {
+                    paginaAtual--;
+                    renderizarListaServicos();
+                }
+            });
+            document.getElementById('btnPaginaProxima').addEventListener('click', function() {
+                const totalPaginas = Math.ceil(servicosTabela.length / itensPorPagina);
+                if (paginaAtual < totalPaginas) {
+                    paginaAtual++;
+                    renderizarListaServicos();
+                }
+            });
+
+            // Eventos de paginação da lista de atendimentos
+            const tamanhosAtend = [5, 10, 20, 50];
+            tamanhosAtend.forEach(size => {
+                const btn = document.getElementById('btnAtendPageSize' + size);
+                if (btn) {
+                    btn.addEventListener('click', function() {
+                        atendItensPorPagina = size;
+                        atendPaginaAtual = 1;
+                        atualizarBotoesTamanhoPaginaAtend();
+                        renderizarPaginacaoAtendimentos();
+                    });
+                }
+            });
+
+            const btnAtendAnt = document.getElementById('btnAtendPaginaAnterior');
+            if (btnAtendAnt) {
+                btnAtendAnt.addEventListener('click', function() {
+                    if (atendPaginaAtual > 1) {
+                        atendPaginaAtual--;
+                        renderizarPaginacaoAtendimentos();
+                    }
+                });
+            }
+
+            const btnAtendProx = document.getElementById('btnAtendPaginaProxima');
+            if (btnAtendProx) {
+                btnAtendProx.addEventListener('click', function() {
+                    const container = document.getElementById('listaAtendimentosContainer');
+                    const totalItens = container ? container.querySelectorAll('.atendimento-linha').length : 0;
+                    const totalPaginas = Math.ceil(totalItens / atendItensPorPagina);
+                    if (atendPaginaAtual < totalPaginas) {
+                        atendPaginaAtual++;
+                        renderizarPaginacaoAtendimentos();
+                    }
+                });
+            }
+
+            atualizarBotoesTamanhoPagina();
+            atualizarBotoesTamanhoPaginaAtend();
+            
+            // Eventos de paginação da aba Histórico
+            const tamanhosHist = [5, 10, 20, 50];
+            tamanhosHist.forEach(size => {
+                const btn = document.getElementById('btnHistPageSize' + size);
+                if (btn) {
+                    btn.addEventListener('click', function() {
+                        histItensPorPagina = size;
+                        histPaginaAtual = 1;
+                        atualizarBotoesTamanhoPaginaHist();
+                        renderizarPaginacaoHistorico();
+                    });
+                }
+            });
+
+            const btnHistAnt = document.getElementById('btnHistPaginaAnterior');
+            if (btnHistAnt) {
+                btnHistAnt.addEventListener('click', function() {
+                    if (histPaginaAtual > 1) {
+                        histPaginaAtual--;
+                        renderizarPaginacaoHistorico();
+                    }
+                });
+            }
+
+            const btnHistProx = document.getElementById('btnHistPaginaProxima');
+            if (btnHistProx) {
+                btnHistProx.addEventListener('click', function() {
+                    const container = document.getElementById('listaHistoricoContainer');
+                    const totalItens = container ? container.querySelectorAll('.atendimento-linha').length : 0;
+                    const totalPaginas = Math.ceil(totalItens / histItensPorPagina);
+                    if (histPaginaAtual < totalPaginas) {
+                        histPaginaAtual++;
+                        renderizarPaginacaoHistorico();
+                    }
+                });
+            }
+
+            atualizarBotoesTamanhoPaginaHist();
+            carregarServicos();
+            renderizarPaginacaoAtendimentos();
+            renderizarPaginacaoHistorico();
+        });
+    </script>
+</body>
+
+</html>

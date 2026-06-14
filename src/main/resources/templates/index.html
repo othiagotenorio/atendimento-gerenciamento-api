@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calango - Gestão Inteligente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --laranja-calango: #ff6b00;
+            --cinza-escuro: #212529;
+            --cinza-claro: #f8f9fa;
+        }
+
+        /* Navbar Customizada */
+        .navbar {
+            background-color: var(--cinza-escuro);
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: #ffffff !important;
+        }
+
+        .nav-link:hover {
+            color: var(--laranja-calango) !important;
+        }
+
+        /* Seção de Destaque (Hero) */
+        .hero-section {
+            background-color: var(--cinza-claro);
+            padding: 100px 0;
+            border-bottom: 5px solid var(--laranja-calango);
+        }
+
+        /* Botões */
+        .btn-laranja {
+            background-color: var(--laranja-calango);
+            color: white;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn-laranja:hover {
+            background-color: #e05e00;
+            color: white;
+        }
+
+        .btn-outline-laranja {
+            border: 2px solid var(--laranja-calango);
+            color: var(--laranja-calango);
+            font-weight: bold;
+        }
+
+        .btn-outline-laranja:hover {
+            background-color: var(--laranja-calango);
+            color: white;
+        }
+
+        /* Imagem do Mascote */
+        .mascote-calango {
+            max-width: 320px;
+            height: auto;
+            filter: drop-shadow(0px 10px 15px rgba(0, 0, 0, 0.1));
+        }
+
+        /* Cards de Recursos */
+        .card-recurso {
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            background-color: #ffffff;
+        }
+
+        .card-recurso:hover {
+            transform: translateY(-5px);
+        }
+
+        .icon-box {
+            font-size: 2.5rem;
+            color: var(--laranja-calango);
+            margin-bottom: 15px;
+        }
+
+        /* Rodapé */
+        footer {
+            background-color: var(--cinza-escuro);
+            color: #ffffff;
+            padding: 40px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
+                <img th:src="@{/images/calango-logo.png}" src="/images/calango-logo.png" alt="Calango Logo" width="35"
+                    class="me-2">
+                CALANGO
+            </a>
+            <div class="d-flex">
+                <a th:href="@{/login}" class="btn btn-outline-laranja me-2">Faça Login</a>
+                <a th:href="@{/cadastro}" class="btn btn-laranja">Cadastre-se</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <span class="badge mb-2 p-2 bg-dark text-uppercase" style="letter-spacing: 1px;">Conheça o
+                        Calango</span>
+                    <h1 class="display-4 fw-bold text-dark mb-3">Sua empresa e suas finanças sob total controle.</h1>
+                    <p class="lead text-muted mb-4">Unimos o gerenciamento de atendimentos ao cliente com um controle
+                        financeiro robusto e gráficos inteligentes. Tudo em um só lugar, rápido e adaptável como um
+                        calango.</p>
+                    <a href="#recursos" class="btn btn-outline-secondary btn-lg px-4">Conhecer Recursos <i
+                            class="bi bi-arrow-down ms-2"></i></a>
+                </div>
+                <div class="col-lg-6 text-center d-none d-lg-block">
+                    <img th:src="@{/images/calango-mascote.png}" src="/images/calango-mascote.png" alt="Mascote Calango"
+                        class="mascote-calango">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section id="recursos" class="py-5 my-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-dark">O que o Calango faz por você?</h2>
+                <p class="text-muted">Ferramentas completas para organizar seu dia a dia profissional e pessoal.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card card-recurso h-100 p-4 text-center">
+                        <div class="icon-box">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">Gestão de Atendimentos</h4>
+                        <p class="text-muted small">Controle sua agenda de clientes, registre históricos de visitas ou
+                            consultas e saiba exatamente quem foi atendido.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card card-recurso h-100 p-4 text-center">
+                        <div class="icon-box">
+                            <i class="bi bi-cash-coin"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">Controle Financeiro</h4>
+                        <p class="text-muted small">Fluxo de caixa simplificado. Cadastre suas receitas, acompanhe seus
+                            gastos fixos e variáveis e gerencie categorias personalizadas.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card card-recurso h-100 p-4 text-center">
+                        <div class="icon-box">
+                            <i class="bi bi-pie-chart-fill"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">Gráficos e Relatórios</h4>
+                        <p class="text-muted small">Visualize a saúde do seu negócio através de gráficos interativos de
+                            pizza e barras. Entenda para onde vai cada centavo.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4 offset-lg-2">
+                    <div class="card card-recurso h-100 p-4 text-center">
+                        <div class="icon-box">
+                            <i class="bi bi-trophy-fill"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">Definição de Metas</h4>
+                        <p class="text-muted small">Estipule metas de economia mensais ou objetivos de faturamento e
+                            acompanhe seu progresso com barras de evolução.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="card card-recurso h-100 p-4 text-center">
+                        <div class="icon-box">
+                            <i class="bi bi-bell-fill"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">Lembretes e Alertas</h4>
+                        <p class="text-muted small">Não perca mais prazos. Receba notificações sobre contas a vencer e
+                            agendamentos de clientes confirmados.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-light py-5 text-center border-top">
+        <div class="container py-4">
+            <h2 class="fw-bold text-dark mb-3">Pronto para transformar sua gestão?</h2>
+            <p class="text-muted mb-4 lead">Crie sua conta em menos de 1 minuto e comece a usar agora mesmo.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a th:href="@{/login}" class="btn btn-outline-secondary btn-lg px-5">Faça Login</a>
+                <a th:href="@{/cadastro}" class="btn btn-laranja btn-lg px-5">Cadastre-se</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center">
+        <div class="container">
+            <p class="mb-2 fw-bold text-uppercase" style="color: var(--laranja-calango);">Calango Finanças & Atendimento
+            </p>
+            <p class="small text-muted mb-0">&copy; 2026 Calango Inc. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>
