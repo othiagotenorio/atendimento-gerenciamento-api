@@ -314,6 +314,34 @@
                 </div>
 
                 <div class="tab-pane fade" id="semana" role="tabpanel">
+                    <!-- Barra de Exportação de Relatórios -->
+                    <div class="card border-0 bg-light rounded-3 p-3 mb-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                            <div>
+                                <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-file-pdf text-danger me-2"></i>Exportar Relatórios PDF</h6>
+                                <p class="text-muted small mb-0">Selecione o período desejado com base na data selecionada no calendário.</p>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a th:href="@{/atendimentos/relatorio(tipo='diario', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''})}" 
+                                   class="btn btn-outline-danger btn-sm fw-bold px-3" style="border-radius: 8px;">
+                                    <i class="fa-solid fa-download me-1"></i> Diário
+                                </a>
+                                <a th:href="@{/atendimentos/relatorio(tipo='semanal', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''})}" 
+                                   class="btn btn-outline-danger btn-sm fw-bold px-3" style="border-radius: 8px;">
+                                    <i class="fa-solid fa-download me-1"></i> Semanal
+                                </a>
+                                <a th:href="@{/atendimentos/relatorio(tipo='mensal', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''})}" 
+                                   class="btn btn-outline-danger btn-sm fw-bold px-3" style="border-radius: 8px;">
+                                    <i class="fa-solid fa-download me-1"></i> Mensal
+                                </a>
+                                <a th:href="@{/atendimentos/relatorio(tipo='anual', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''})}" 
+                                   class="btn btn-outline-danger btn-sm fw-bold px-3" style="border-radius: 8px;">
+                                    <i class="fa-solid fa-download me-1"></i> Anual
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="lista-scroll-atendimentos" id="listaHistoricoContainer">
 
                         <div th:if="${#lists.isEmpty(atendimentosRealizados)}" class="text-center text-muted my-5">

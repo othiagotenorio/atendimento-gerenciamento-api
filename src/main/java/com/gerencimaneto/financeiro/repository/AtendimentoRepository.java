@@ -15,4 +15,11 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> 
     // Busca atendimentos em um intervalo de datas (caso use na aba semana)
     List<Atendimento> findByDataAtendimentoBetweenOrderByDataAtendimentoAscHoraAtendimentoAsc(LocalDate inicio,
             LocalDate fim);
+
+    // Busca atendimentos realizados na data selecionada
+    List<Atendimento> findByDataAtendimentoAndRealizadoTrueOrderByHoraAtendimentoAsc(LocalDate data);
+
+    // Busca atendimentos realizados em um intervalo de datas
+    List<Atendimento> findByDataAtendimentoBetweenAndRealizadoTrueOrderByDataAtendimentoAscHoraAtendimentoAsc(LocalDate inicio,
+            LocalDate fim);
 }

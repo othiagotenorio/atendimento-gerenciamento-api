@@ -4,8 +4,10 @@ import org.springframework.stereotype.Controller;
 import com.gerencimaneto.financeiro.model.Atendimento;
 import com.gerencimaneto.financeiro.model.AtendimentoDiarioTotal;
 import com.gerencimaneto.financeiro.repository.AtendimentoDiarioTotalRepository;
+import com.gerencimaneto.financeiro.repository.AtendimentoRepository;
 import com.gerencimaneto.financeiro.service.AtendimentoService;
 import com.gerencimaneto.financeiro.service.ServicoTabelaService;
+import com.gerencimaneto.financeiro.service.RelatorioPdfService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
@@ -24,10 +26,16 @@ public class AtendimentoController {
     private AtendimentoService service;
 
     @Autowired
+    private AtendimentoRepository repository;
+
+    @Autowired
     private ServicoTabelaService servicoTabelaService;
 
     @Autowired
     private AtendimentoDiarioTotalRepository atendimentoDiarioTotalRepository;
+
+    @Autowired
+    private RelatorioPdfService relatorioPdfService;
 
     /**
      * Carrega a página filtrando por data (Histórico ou Hoje)
@@ -136,5 +144,51 @@ public class AtendimentoController {
                 .orElse("");
 
         return "redirect:/atendimentos" + (!dataFiltro.isEmpty() ? "?dataFiltro=" + dataFiltro : "");
+    }
+
+    @GetMapping("/relatorio")
+    public void baixarRelatorio(
+            @RequestParam("tipo") String tipo,
+            @RequestParam(value = "data", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+
+        if (data == null) {
+            data = LocalDate.now();
+        }
+
+        List<Atendimento> atendimentos;
+        String tituloPeriodo;
+
+        switch (tipo.toLowerCase()) {
+            case "semanal":
+                LocalDate fimSemana = data.plusDays(6);
+                atendimentos = repository.findByDataAtendimentoBetweenAndRealizadoTrueOrderByDataAtendimentoAscHoraAtendimentoAsc(data, fimSemana);
+                tituloPeriodo = "Semanal (" + data.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " a " + fimSemana.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")";
+                break;
+            case "mensal":
+                LocalDate inicioMes = data.withDayOfMonth(1);
+                LocalDate fimMes = data.with(java.time.temporal.TemporalAdjusters.lastDayOfMonth());
+                atendimentos = repository.findByDataAtendimentoBetweenAndRealizadoTrueOrderByDataAtendimentoAscHoraAtendimentoAsc(inicioMes, fimMes);
+                tituloPeriodo = "Mensal (" + data.format(java.time.format.DateTimeFormatter.ofPattern("MMMM/yyyy", new java.util.Locale("pt", "BR"))) + ")";
+                break;
+            case "anual":
+                LocalDate inicioAno = data.withDayOfYear(1);
+                LocalDate fimAno = data.with(java.time.temporal.TemporalAdjusters.lastDayOfYear());
+                atendimentos = repository.findByDataAtendimentoBetweenAndRealizadoTrueOrderByDataAtendimentoAscHoraAtendimentoAsc(inicioAno, fimAno);
+                tituloPeriodo = "Anual (" + data.getYear() + ")";
+                break;
+            case "diario":
+            default:
+                atendimentos = repository.findByDataAtendimentoAndRealizadoTrueOrderByHoraAtendimentoAsc(data);
+                tituloPeriodo = "Diário (" + data.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")";
+                break;
+        }
+
+        byte[] pdfBytes = relatorioPdfService.gerarRelatorioRealizados(atendimentos, tituloPeriodo);
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"relatorio_atendimentos_" + tipo + ".pdf\"");
+        response.getOutputStream().write(pdfBytes);
+        response.getOutputStream().flush();
     }
 }
