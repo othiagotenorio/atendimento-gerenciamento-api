@@ -361,7 +361,7 @@
                                 </span>
                             </div>
 
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <p class="text-muted small m-0 text-truncate" th:text="${atend.descricao}">Servicos</p>
                             </div>
 
@@ -377,8 +377,14 @@
                                 <span th:if="${atend.valor == null}" class="valor-atendimento sem-valor">--</span>
                             </div>
 
-                            <div class="col-md-2 text-md-end">
-                                <span class="badge bg-light text-secondary border px-2 py-1 small" th:text="${atend.origem}">MANUAL</span>
+                            <div class="col-md-3 text-md-end d-flex justify-content-end align-items-center gap-1">
+                                <span class="badge bg-light text-secondary border px-2 py-1 small me-1" th:text="${atend.origem}">MANUAL</span>
+                                <a th:href="@{/atendimentos/reverter/{id}(id=${atend.id})}" class="btn btn-sm btn-outline-warning py-0 px-1" title="Reverter para pendente" style="border-radius: 4px;">
+                                    <i class="fa-solid fa-rotate-left" style="font-size: 0.8rem;"></i>
+                                </a>
+                                <a th:href="@{/atendimentos/deletar/{id}(id=${atend.id})}" class="btn btn-sm btn-outline-danger py-0 px-1" title="Excluir" onclick="return confirm('Tem certeza que deseja excluir este atendimento? O valor também será removido do total.')" style="border-radius: 4px;">
+                                    <i class="fa-solid fa-trash" style="font-size: 0.8rem;"></i>
+                                </a>
                             </div>
                         </div>
 

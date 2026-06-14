@@ -112,13 +112,46 @@ public class AtendimentoController {
 
     @GetMapping("/deletar/{id}")
     public String deletarAtendimento(@PathVariable("id") Long id) {
-        // Busca antes de deletar apenas para saber qual era a data e redirecionar para
-        // o dia certo
+        java.util.Optional<Atendimento> opt = service.buscarPorId(id);
+        String dataFiltro = "";
+
+        if (opt.isPresent()) {
+            Atendimento atend = opt.get();
+            dataFiltro = atend.getDataAtendimento().toString();
+
+            // Se o atendimento já estava realizado, limpa o total correspondente
+            if (atend.isRealizado()) {
+                BigDecimal val = atend.getValor() != null ? atend.getValor() : BigDecimal.ZERO;
+                List<AtendimentoDiarioTotal> matching = atendimentoDiarioTotalRepository
+                        .findByClienteAndDataAndValor(atend.getCliente(), atend.getDataAtendimento(), val);
+                if (!matching.isEmpty()) {
+                    atendimentoDiarioTotalRepository.delete(matching.get(0));
+                }
+            }
+            service.excluir(id);
+        }
+
+        return "redirect:/atendimentos" + (!dataFiltro.isEmpty() ? "?dataFiltro=" + dataFiltro : "");
+    }
+
+    @GetMapping("/reverter/{id}")
+    public String reverterAtendimento(@PathVariable("id") Long id) {
+        service.buscarPorId(id).ifPresent(atendimento -> {
+            atendimento.setRealizado(false);
+            service.salvarManual(atendimento);
+
+            // Remove o registro correspondente em AtendimentoDiarioTotal
+            BigDecimal val = atendimento.getValor() != null ? atendimento.getValor() : BigDecimal.ZERO;
+            List<AtendimentoDiarioTotal> matching = atendimentoDiarioTotalRepository
+                    .findByClienteAndDataAndValor(atendimento.getCliente(), atendimento.getDataAtendimento(), val);
+            if (!matching.isEmpty()) {
+                atendimentoDiarioTotalRepository.delete(matching.get(0));
+            }
+        });
+
         String dataFiltro = service.buscarPorId(id)
                 .map(a -> a.getDataAtendimento().toString())
                 .orElse("");
-
-        service.excluir(id);
 
         return "redirect:/atendimentos" + (!dataFiltro.isEmpty() ? "?dataFiltro=" + dataFiltro : "");
     }
