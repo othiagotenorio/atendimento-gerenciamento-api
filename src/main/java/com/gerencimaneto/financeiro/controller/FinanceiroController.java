@@ -3,7 +3,9 @@ package com.gerencimaneto.financeiro.controller;
 import com.gerencimaneto.financeiro.model.Atendimento;
 import com.gerencimaneto.financeiro.model.Despesa;
 import com.gerencimaneto.financeiro.repository.DespesaRepository;
+import com.gerencimaneto.financeiro.repository.ClienteRepository;
 import com.gerencimaneto.financeiro.service.FinanceiroService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -25,14 +27,21 @@ public class FinanceiroController {
     @Autowired
     private DespesaRepository despesaRepository;
 
+    @Autowired
+    private ClienteRepository clienteRepository;
+
     /**
      * Página principal do painel financeiro.
      */
     @GetMapping
     public String exibirFinanceiro(
+            HttpSession session,
             @RequestParam(value = "periodo", defaultValue = "mes") String periodo,
             @RequestParam(value = "data", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
             Model model) {
+
+        Long clienteId = (Long) session.getAttribute("clienteId");
+        if (clienteId == null) return "redirect:/login";
 
         LocalDate referencia = (data != null) ? data : LocalDate.now();
         LocalDate[] intervalo = financeiroService.calcularIntervalo(periodo, referencia);
@@ -40,11 +49,11 @@ public class FinanceiroController {
         LocalDate fim = intervalo[1];
 
         // Dados financeiros
-        List<Atendimento> atendimentos = financeiroService.buscarRealizadosPorPeriodo(inicio, fim);
+        List<Atendimento> atendimentos = financeiroService.buscarRealizadosPorPeriodo(clienteId, inicio, fim);
         BigDecimal receita = financeiroService.calcularReceita(atendimentos);
         BigDecimal ticketMedio = financeiroService.calcularTicketMedio(receita, atendimentos.size());
 
-        List<Despesa> despesas = financeiroService.buscarDespesasPorPeriodo(inicio, fim);
+        List<Despesa> despesas = financeiroService.buscarDespesasPorPeriodo(clienteId, inicio, fim);
         BigDecimal totalDespesas = financeiroService.calcularTotalDespesas(despesas);
         BigDecimal lucroLiquido = financeiroService.calcularLucroLiquido(receita, totalDespesas);
 
@@ -111,6 +120,7 @@ public class FinanceiroController {
      */
     @PostMapping("/despesas/salvar")
     public String salvarDespesa(
+            HttpSession session,
             @RequestParam("descricao") String descricao,
             @RequestParam("valor") BigDecimal valor,
             @RequestParam("data") String data,
@@ -118,7 +128,11 @@ public class FinanceiroController {
             @RequestParam(value = "periodo", defaultValue = "mes") String periodo,
             @RequestParam(value = "referencia", required = false) String referencia) {
 
+        Long clienteId = (Long) session.getAttribute("clienteId");
+        if (clienteId == null) return "redirect:/login";
+
         Despesa despesa = new Despesa(descricao, valor, LocalDate.parse(data), categoria);
+        clienteRepository.findById(clienteId).ifPresent(despesa::setClienteDono);
         despesaRepository.save(despesa);
 
         String redirect = "/financeiro?periodo=" + periodo;
@@ -133,11 +147,15 @@ public class FinanceiroController {
      */
     @GetMapping("/despesas/deletar/{id}")
     public String deletarDespesa(
+            HttpSession session,
             @PathVariable("id") Long id,
             @RequestParam(value = "periodo", defaultValue = "mes") String periodo,
             @RequestParam(value = "referencia", required = false) String referencia) {
 
-        despesaRepository.deleteById(id);
+        Long clienteId = (Long) session.getAttribute("clienteId");
+        if (clienteId != null) {
+            despesaRepository.findByIdAndClienteDonoId(id, clienteId).ifPresent(d -> despesaRepository.delete(d));
+        }
 
         String redirect = "/financeiro?periodo=" + periodo;
         if (referencia != null && !referencia.isBlank()) {

@@ -11,7 +11,11 @@ public class ServicoTabela {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id")
+    private Cliente clienteDono;
+
+    @Column(nullable = false, length = 100)
     private String tag;
 
     @Column(nullable = false, precision = 10, scale = 2)
@@ -31,6 +35,14 @@ public class ServicoTabela {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Cliente getClienteDono() {
+        return clienteDono;
+    }
+
+    public void setClienteDono(Cliente clienteDono) {
+        this.clienteDono = clienteDono;
     }
 
     public String getTag() {

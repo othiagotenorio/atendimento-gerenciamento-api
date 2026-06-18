@@ -24,14 +24,13 @@ public class RelatorioPdfService {
             PdfWriter.getInstance(document, out);
             document.open();
 
-            // Fontes
-            Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, new Color(255, 107, 0)); // Laranja Calango
+            Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, new Color(255, 107, 0)); // Laranja
+                                                                                                           // Calango
             Font fontSubtitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, new Color(33, 37, 41));
             Font fontNormalBold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.BLACK);
             Font fontNormal = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK);
             Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.WHITE);
 
-            // Cabeçalho
             Paragraph pTitulo = new Paragraph("CALANGO - SISTEMA FINANCEIRO", fontTitulo);
             pTitulo.setAlignment(Element.ALIGN_CENTER);
             pTitulo.setSpacingAfter(5);
@@ -42,7 +41,6 @@ public class RelatorioPdfService {
             pSub.setSpacingAfter(20);
             document.add(pSub);
 
-            // Tabela de resumo
             BigDecimal totalGanho = atendimentos.stream()
                     .map(a -> a.getValor() != null ? a.getValor() : BigDecimal.ZERO)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -54,7 +52,7 @@ public class RelatorioPdfService {
             PdfPTable tableResumo = new PdfPTable(2);
             tableResumo.setWidthPercentage(100);
             tableResumo.setSpacingAfter(20);
-            tableResumo.setWidths(new float[]{3f, 1f});
+            tableResumo.setWidths(new float[] { 3f, 1f });
 
             PdfPCell cellTotalAtend = new PdfPCell(new Phrase("Total de Atendimentos Realizados:", fontNormalBold));
             cellTotalAtend.setBorder(Rectangle.NO_BORDER);
@@ -76,13 +74,12 @@ public class RelatorioPdfService {
 
             document.add(tableResumo);
 
-            // Tabela principal
             PdfPTable table = new PdfPTable(6);
             table.setWidthPercentage(100);
-            table.setWidths(new float[]{2.0f, 2.5f, 1.8f, 1.5f, 1.2f, 1.8f}); // colunas: cliente, servicos, prof, data, hora, valor
+            table.setWidths(new float[] { 2.0f, 2.5f, 1.8f, 1.5f, 1.2f, 1.8f }); // colunas: cliente, servicos, prof,
+                                                                                 // data, hora, valor
 
-            // Cabeçalho da tabela
-            String[] headers = {"Cliente", "Serviço(s)", "Profissional", "Data", "Hora", "Valor"};
+            String[] headers = { "Cliente", "Serviço(s)", "Profissional", "Data", "Hora", "Valor" };
             Color orangeCalango = new Color(255, 107, 0);
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, fontHeader));
@@ -92,7 +89,6 @@ public class RelatorioPdfService {
                 table.addCell(cell);
             }
 
-            // Linhas da tabela
             boolean alternar = false;
             Color cinzaClaro = new Color(245, 245, 245);
             for (Atendimento a : atendimentos) {

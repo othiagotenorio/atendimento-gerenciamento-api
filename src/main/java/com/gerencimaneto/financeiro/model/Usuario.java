@@ -27,4 +27,7 @@ public class Usuario {
 
     @Column(name = "SENHA")
     private String senha;
+
+    @Column(name = "PERFIL")
+    private String perfil; // "ADMIN" ou "USER"
 }

@@ -126,6 +126,21 @@
             text-decoration: none;
         }
 
+        /* Link Admin — cor roxa/índigo para diferenciação visual */
+        .sb-link.sb-link-admin {
+            color: #a78bfa;
+        }
+
+        .sb-link.sb-link-admin:hover {
+            background: rgba(139,92,246,0.15);
+            color: #8b5cf6;
+        }
+
+        .sb-link.sb-link-admin.sb-active {
+            background: #7c3aed !important;
+            color: #fff !important;
+        }
+
         /* Botão toggle — aba discreta na borda direita da sidebar */
         #btnToggleSidebar {
             position: fixed;
@@ -227,6 +242,15 @@
                    th:classappend="${paginaAtiva == 'servicos'} ? ' sb-active'">
                     <i class="fa-solid fa-tags"></i>
                     <span>Tabela de Preços</span>
+                </a>
+
+                <!-- Item Administração — visível apenas para ADMIN -->
+                <a th:if="${session.isAdmin != null}"
+                   th:href="@{/admin}"
+                   class="sb-link sb-link-admin"
+                   th:classappend="${paginaAtiva == 'admin'} ? ' sb-active'">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Administração</span>
                 </a>
 
             </nav>

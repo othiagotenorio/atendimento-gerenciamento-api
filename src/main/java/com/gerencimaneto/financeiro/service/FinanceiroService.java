@@ -23,9 +23,6 @@ public class FinanceiroService {
     @Autowired
     private DespesaRepository despesaRepository;
 
-    /**
-     * Retorna o intervalo de datas para o período solicitado.
-     */
     public LocalDate[] calcularIntervalo(String periodo, LocalDate referencia) {
         LocalDate inicio;
         LocalDate fim;
@@ -48,17 +45,20 @@ public class FinanceiroService {
                 fim = referencia.with(TemporalAdjusters.lastDayOfMonth());
                 break;
         }
-        return new LocalDate[]{inicio, fim};
+        return new LocalDate[] { inicio, fim };
     }
 
     /**
      * Busca atendimentos realizados no período.
      */
-    public List<Atendimento> buscarRealizadosPorPeriodo(LocalDate inicio, LocalDate fim) {
+    public List<Atendimento> buscarRealizadosPorPeriodo(Long clienteId, LocalDate inicio, LocalDate fim) {
         if (inicio.equals(fim)) {
-            return atendimentoRepository.findByDataAtendimentoAndRealizadoTrueOrderByHoraAtendimentoAsc(inicio);
+            return atendimentoRepository
+                    .findByClienteDonoIdAndDataAtendimentoAndRealizadoTrueOrderByHoraAtendimentoAsc(clienteId, inicio);
         }
-        return atendimentoRepository.findByDataAtendimentoBetweenAndRealizadoTrueOrderByDataAtendimentoAscHoraAtendimentoAsc(inicio, fim);
+        return atendimentoRepository
+                .findByClienteDonoIdAndDataAtendimentoBetweenAndRealizadoTrueOrderByDataAtendimentoAscHoraAtendimentoAsc(
+                        clienteId, inicio, fim);
     }
 
     /**
@@ -70,25 +70,19 @@ public class FinanceiroService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /**
-     * Calcula ticket médio (receita total / número de atendimentos).
-     */
     public BigDecimal calcularTicketMedio(BigDecimal receita, int totalAtendimentos) {
-        if (totalAtendimentos == 0) return BigDecimal.ZERO;
+        if (totalAtendimentos == 0)
+            return BigDecimal.ZERO;
         return receita.divide(BigDecimal.valueOf(totalAtendimentos), 2, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Ranking de clientes: agrupa por cliente e soma valores.
-     * Retorna lista de [cliente, total, quantidade] ordenada por total desc.
-     */
     public List<Map<String, Object>> rankingClientes(List<Atendimento> atendimentos) {
         Map<String, BigDecimal[]> mapa = new LinkedHashMap<>();
 
         for (Atendimento a : atendimentos) {
             String cliente = a.getCliente();
             BigDecimal val = a.getValor() != null ? a.getValor() : BigDecimal.ZERO;
-            mapa.computeIfAbsent(cliente, k -> new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO});
+            mapa.computeIfAbsent(cliente, k -> new BigDecimal[] { BigDecimal.ZERO, BigDecimal.ZERO });
             mapa.get(cliente)[0] = mapa.get(cliente)[0].add(val); // total
             mapa.get(cliente)[1] = mapa.get(cliente)[1].add(BigDecimal.ONE); // qtd
         }
@@ -114,10 +108,10 @@ public class FinanceiroService {
         Map<String, BigDecimal[]> mapa = new LinkedHashMap<>();
 
         for (Atendimento a : atendimentos) {
-            // A descrição pode conter múltiplos serviços separados por vírgula ou + 
+            // A descrição pode conter múltiplos serviços separados por vírgula ou +
             String desc = a.getDescricao() != null ? a.getDescricao() : "Sem Descrição";
             BigDecimal val = a.getValor() != null ? a.getValor() : BigDecimal.ZERO;
-            mapa.computeIfAbsent(desc, k -> new BigDecimal[]{BigDecimal.ZERO, BigDecimal.ZERO});
+            mapa.computeIfAbsent(desc, k -> new BigDecimal[] { BigDecimal.ZERO, BigDecimal.ZERO });
             mapa.get(desc)[0] = mapa.get(desc)[0].add(val);
             mapa.get(desc)[1] = mapa.get(desc)[1].add(BigDecimal.ONE);
         }
@@ -138,11 +132,11 @@ public class FinanceiroService {
     /**
      * Busca despesas no período.
      */
-    public List<Despesa> buscarDespesasPorPeriodo(LocalDate inicio, LocalDate fim) {
+    public List<Despesa> buscarDespesasPorPeriodo(Long clienteId, LocalDate inicio, LocalDate fim) {
         if (inicio.equals(fim)) {
-            return despesaRepository.findByDataOrderByDataDesc(inicio);
+            return despesaRepository.findByClienteDonoIdAndDataOrderByDataDesc(clienteId, inicio);
         }
-        return despesaRepository.findByDataBetweenOrderByDataDesc(inicio, fim);
+        return despesaRepository.findByClienteDonoIdAndDataBetweenOrderByDataDesc(clienteId, inicio, fim);
     }
 
     /**
@@ -162,7 +156,8 @@ public class FinanceiroService {
     }
 
     /**
-     * Gera dados para o gráfico de ganhos por período (dia a dia dentro do intervalo).
+     * Gera dados para o gráfico de ganhos por período (dia a dia dentro do
+     * intervalo).
      * Retorna Map<String(data formatada), BigDecimal(total do dia)>
      */
     public Map<String, BigDecimal> dadosGrafico(List<Atendimento> atendimentos, LocalDate inicio, LocalDate fim) {

@@ -9,6 +9,5 @@ import java.util.Optional;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByEmail(String email);
-    // Esse método vai nos ajudar a checar se o e-mail já existe antes de cadastrar
 
 }

@@ -6,11 +6,14 @@ import com.gerencimaneto.financeiro.model.Despesa;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DespesaRepository extends JpaRepository<Despesa, Long> {
 
-    List<Despesa> findByDataBetweenOrderByDataDesc(LocalDate inicio, LocalDate fim);
+    Optional<Despesa> findByIdAndClienteDonoId(Long id, Long clienteId);
 
-    List<Despesa> findByDataOrderByDataDesc(LocalDate data);
+    List<Despesa> findByClienteDonoIdAndDataBetweenOrderByDataDesc(Long clienteId, LocalDate inicio, LocalDate fim);
+
+    List<Despesa> findByClienteDonoIdAndDataOrderByDataDesc(Long clienteId, LocalDate data);
 }

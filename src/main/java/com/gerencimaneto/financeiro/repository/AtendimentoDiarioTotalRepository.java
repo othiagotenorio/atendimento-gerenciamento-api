@@ -10,5 +10,5 @@ import java.util.List;
 
 @Repository
 public interface AtendimentoDiarioTotalRepository extends JpaRepository<AtendimentoDiarioTotal, Long> {
-    List<AtendimentoDiarioTotal> findByClienteAndDataAndValor(String cliente, LocalDate data, BigDecimal valor);
+    List<AtendimentoDiarioTotal> findByClienteDonoIdAndClienteAndDataAndValor(Long clienteId, String cliente, LocalDate data, BigDecimal valor);
 }

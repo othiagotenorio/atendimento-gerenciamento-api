@@ -13,6 +13,10 @@ public class Atendimento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id")
+    private Cliente clienteDono;
+
     @Column(nullable = false)
     private String cliente;
 
@@ -56,6 +60,14 @@ public class Atendimento {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Cliente getClienteDono() {
+        return clienteDono;
+    }
+
+    public void setClienteDono(Cliente clienteDono) {
+        this.clienteDono = clienteDono;
     }
 
     public String getCliente() {

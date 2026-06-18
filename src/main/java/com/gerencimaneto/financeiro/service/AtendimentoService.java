@@ -14,21 +14,20 @@ public class AtendimentoService {
     @Autowired
     private AtendimentoRepository repository;
 
-    // Listar filtrando direto pela LocalDate escolhida
-    public List<Atendimento> listarPorData(LocalDate data) {
+    public List<Atendimento> listarPorData(Long clienteId, LocalDate data) {
         if (data == null) {
-            data = LocalDate.now(); // Se não informou data, assume a data de hoje
+            data = LocalDate.now();
         }
-        return repository.findByDataAtendimentoOrderByHoraAtendimentoAsc(data);
+        return repository.findByClienteDonoIdAndDataAtendimentoOrderByHoraAtendimentoAsc(clienteId, data);
     }
 
-    // Listar atendimentos no intervalo de uma semana usando LocalDate
-    public List<Atendimento> listarPorSemana(LocalDate dataInicio) {
+    public List<Atendimento> listarPorSemana(Long clienteId, LocalDate dataInicio) {
         if (dataInicio == null) {
             dataInicio = LocalDate.now();
         }
         LocalDate dataFim = dataInicio.plusDays(7);
-        return repository.findByDataAtendimentoBetweenOrderByDataAtendimentoAscHoraAtendimentoAsc(dataInicio, dataFim);
+        return repository.findByClienteDonoIdAndDataAtendimentoBetweenOrderByDataAtendimentoAscHoraAtendimentoAsc(
+                clienteId, dataInicio, dataFim);
     }
 
     public Atendimento salvarManual(Atendimento atendimento) {
@@ -42,7 +41,11 @@ public class AtendimentoService {
         return repository.findById(id);
     }
 
-    public void excluir(Long id) {
-        repository.deleteById(id);
+    public Optional<Atendimento> buscarPorIdECliente(Long id, Long clienteId) {
+        return repository.findByIdAndClienteDonoId(id, clienteId);
+    }
+
+    public void excluirSePertenceAoCliente(Long id, Long clienteId) {
+        buscarPorIdECliente(id, clienteId).ifPresent(a -> repository.delete(a));
     }
 }

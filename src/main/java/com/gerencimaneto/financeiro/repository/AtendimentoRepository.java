@@ -5,21 +5,21 @@ import org.springframework.stereotype.Repository;
 import com.gerencimaneto.financeiro.model.Atendimento;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AtendimentoRepository extends JpaRepository<Atendimento, Long> {
 
-    // Busca os atendimentos exatamente na data selecionada
-    List<Atendimento> findByDataAtendimentoOrderByHoraAtendimentoAsc(LocalDate data);
+    Optional<Atendimento> findByIdAndClienteDonoId(Long id, Long clienteId);
 
-    // Busca atendimentos em um intervalo de datas (caso use na aba semana)
-    List<Atendimento> findByDataAtendimentoBetweenOrderByDataAtendimentoAscHoraAtendimentoAsc(LocalDate inicio,
-            LocalDate fim);
+    List<Atendimento> findByClienteDonoIdAndDataAtendimentoOrderByHoraAtendimentoAsc(Long clienteId, LocalDate data);
 
-    // Busca atendimentos realizados na data selecionada
-    List<Atendimento> findByDataAtendimentoAndRealizadoTrueOrderByHoraAtendimentoAsc(LocalDate data);
+    List<Atendimento> findByClienteDonoIdAndDataAtendimentoBetweenOrderByDataAtendimentoAscHoraAtendimentoAsc(
+            Long clienteId, LocalDate inicio, LocalDate fim);
 
-    // Busca atendimentos realizados em um intervalo de datas
-    List<Atendimento> findByDataAtendimentoBetweenAndRealizadoTrueOrderByDataAtendimentoAscHoraAtendimentoAsc(LocalDate inicio,
-            LocalDate fim);
+    List<Atendimento> findByClienteDonoIdAndDataAtendimentoAndRealizadoTrueOrderByHoraAtendimentoAsc(Long clienteId,
+            LocalDate data);
+
+    List<Atendimento> findByClienteDonoIdAndDataAtendimentoBetweenAndRealizadoTrueOrderByDataAtendimentoAscHoraAtendimentoAsc(
+            Long clienteId, LocalDate inicio, LocalDate fim);
 }

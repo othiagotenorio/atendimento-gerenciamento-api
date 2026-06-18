@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Detalhes - ' + ${detalhe.cliente.nomeEmpresa} + ' - Calango'">Detalhes do Cliente - Calango</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --admin-purple: #7c3aed;
+            --cinza-corpo: #f4f6f9;
+        }
+
+        body {
+            background-color: var(--cinza-corpo);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 30px;
+            min-height: 100vh;
+            transition: margin-left 0.28s ease;
+        }
+
+        .breadcrumb-custom {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .breadcrumb-custom a {
+            color: var(--admin-purple);
+            text-decoration: none;
+        }
+
+        /* HERO CARD */
+        .hero-card {
+            background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 60%, #6d28d9 100%);
+            border-radius: 18px;
+            color: white;
+            padding: 32px 36px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: -50px; right: -50px;
+            width: 200px; height: 200px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .company-logo-big {
+            width: 68px;
+            height: 68px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .hero-company-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+
+        .hero-sub {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .status-ativo-pill {
+            background: rgba(34,197,94,0.2);
+            border: 1px solid rgba(34,197,94,0.4);
+            color: #86efac;
+        }
+
+        .status-bloqueado-pill {
+            background: rgba(239,68,68,0.2);
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #fca5a5;
+        }
+
+        /* CARDS DE ESTATÍSTICA */
+        .stat-card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            padding: 20px 22px;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin: 0 auto 12px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
+        /* INFO CARD */
+        .info-card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .info-card .card-header {
+            background: white;
+            border-bottom: 1px solid #f1f5f9;
+            padding: 16px 22px;
+            font-weight: 700;
+            color: #111827;
+            font-size: 0.95rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        /* BADGE PLANO */
+        .plan-badge {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0 !important; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+
+        <!-- BREADCRUMB -->
+        <div class="breadcrumb-custom mb-3">
+            <a th:href="@{/admin}"><i class="fa-solid fa-shield-halved me-1"></i>Administração</a>
+            <span class="mx-1">/</span>
+            <a th:href="@{/admin/clientes}">Clientes</a>
+            <span class="mx-1">/</span>
+            <span th:text="${detalhe.cliente.nomeEmpresa}">Empresa</span>
+        </div>
+
+        <!-- HERO: dados principais do cliente -->
+        <div class="hero-card mb-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="company-logo-big"
+                     th:text="${detalhe.cliente.nomeEmpresa != null && !detalhe.cliente.nomeEmpresa.isEmpty()
+                               ? detalhe.cliente.nomeEmpresa.substring(0,1).toUpperCase() : '?'}">
+                </div>
+                <div>
+                    <div class="hero-company-name" th:text="${detalhe.cliente.nomeEmpresa}">Nome da Empresa</div>
+                    <div class="hero-sub">
+                        <i class="fa-solid fa-user me-1"></i>
+                        <span th:text="${detalhe.cliente.nomeResponsavel}">Responsável</span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span class="status-pill"
+                      th:classappend="${detalhe.cliente.status == 'ATIVO'} ? 'status-ativo-pill' : 'status-bloqueado-pill'">
+                    <i class="fa-solid"
+                       th:classappend="${detalhe.cliente.status == 'ATIVO'} ? 'fa-circle-check' : 'fa-ban'"></i>
+                    <span th:text="${detalhe.cliente.status}"></span>
+                </span>
+                <span style="opacity:0.7; font-size:0.85rem;">
+                    <i class="fa-solid fa-envelope me-1"></i>
+                    <span th:text="${detalhe.cliente.email}"></span>
+                </span>
+                <span th:if="${detalhe.cliente.telefone != null}" style="opacity:0.7; font-size:0.85rem;">
+                    <i class="fa-solid fa-phone me-1"></i>
+                    <span th:text="${detalhe.cliente.telefone}"></span>
+                </span>
+            </div>
+            <!-- Botões de ação -->
+            <div class="d-flex gap-2 mt-3 flex-wrap">
+                <a th:href="@{/admin/clientes/{id}/editar(id=${detalhe.cliente.id})}"
+                   class="btn btn-sm fw-semibold"
+                   style="background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); border-radius:8px;">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Editar
+                </a>
+                <a th:if="${detalhe.cliente.status == 'ATIVO'}"
+                   th:href="@{/admin/clientes/{id}/bloquear(id=${detalhe.cliente.id})}"
+                   class="btn btn-sm fw-semibold"
+                   style="background:rgba(239,68,68,0.25); color:#fca5a5; border:1px solid rgba(239,68,68,0.4); border-radius:8px;"
+                   onclick="return confirm('Bloquear o acesso deste cliente?')">
+                    <i class="fa-solid fa-ban me-1"></i> Bloquear
+                </a>
+                <a th:if="${detalhe.cliente.status == 'BLOQUEADO'}"
+                   th:href="@{/admin/clientes/{id}/ativar(id=${detalhe.cliente.id})}"
+                   class="btn btn-sm fw-semibold"
+                   style="background:rgba(34,197,94,0.25); color:#86efac; border:1px solid rgba(34,197,94,0.4); border-radius:8px;">
+                    <i class="fa-solid fa-circle-check me-1"></i> Ativar
+                </a>
+                <a th:href="@{/admin/clientes}" class="btn btn-sm fw-semibold"
+                   style="background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.2); border-radius:8px;">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Voltar
+                </a>
+            </div>
+        </div>
+
+        <!-- CARDS DE ESTATÍSTICAS DO SISTEMA -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-4">
+                <div class="card stat-card bg-white">
+                    <div class="stat-icon" style="background:#ede9fe; color:#7c3aed;">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="stat-value" th:text="${detalhe.qtdUsuarios}">0</div>
+                    <div class="stat-label">Usuários no Sistema</div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card stat-card bg-white">
+                    <div class="stat-icon" style="background:#dbeafe; color:#2563eb;">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-value" th:text="${detalhe.qtdAtendimentos}">0</div>
+                    <div class="stat-label">Atendimentos Registrados</div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card stat-card bg-white">
+                    <div class="stat-icon" style="background:#fef3c7; color:#d97706;">
+                        <i class="fa-solid fa-tags"></i>
+                    </div>
+                    <div class="stat-value" th:text="${detalhe.qtdServicos}">0</div>
+                    <div class="stat-label">Serviços Cadastrados</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DADOS DA EMPRESA -->
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="card info-card bg-white">
+                    <div class="card-header">
+                        <i class="fa-solid fa-building me-2 text-muted"></i>Dados da Empresa
+                    </div>
+                    <div class="card-body px-3">
+                        <div class="info-row">
+                            <span class="info-label">ID do Cliente</span>
+                            <span class="info-value text-muted" th:text="'#' + ${detalhe.cliente.id}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Nome da Empresa</span>
+                            <span class="info-value" th:text="${detalhe.cliente.nomeEmpresa}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Responsável</span>
+                            <span class="info-value" th:text="${detalhe.cliente.nomeResponsavel}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">E-mail</span>
+                            <span class="info-value" th:text="${detalhe.cliente.email}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Telefone</span>
+                            <span class="info-value" th:text="${detalhe.cliente.telefone != null ? detalhe.cliente.telefone : '—'}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card info-card bg-white">
+                    <div class="card-header">
+                        <i class="fa-solid fa-file-contract me-2 text-muted"></i>Contrato &amp; Status
+                    </div>
+                    <div class="card-body px-3">
+                        <div class="info-row">
+                            <span class="info-label">Plano Contratado</span>
+                            <span class="plan-badge" th:text="${detalhe.cliente.plano != null ? detalhe.cliente.plano : 'Não definido'}"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status da Conta</span>
+                            <span class="badge-status"
+                                  th:classappend="${detalhe.cliente.status == 'ATIVO'} ? 'status-ativo' : 'status-bloqueado'"
+                                  th:text="${detalhe.cliente.status}"
+                                  style="font-size:0.78rem; font-weight:700; padding:5px 14px; border-radius:20px;">
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Data de Cadastro</span>
+                            <span class="info-value" th:text="${#temporals.format(detalhe.cliente.dataCadastro, 'dd/MM/yyyy')}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        .badge-status { display:inline-block; }
+        .status-ativo { background:#dcfce7; color:#15803d; }
+        .status-bloqueado { background:#fee2e2; color:#dc2626; }
+    </style>
+</body>
+</html>

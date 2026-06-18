@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${modoEdicao} ? 'Editar Cliente - Calango' : 'Novo Cliente - Calango'">Formulário Cliente - Calango</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --admin-purple: #7c3aed;
+            --cinza-corpo: #f4f6f9;
+        }
+
+        body {
+            background-color: var(--cinza-corpo);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 30px;
+            min-height: 100vh;
+            transition: margin-left 0.28s ease;
+        }
+
+        .breadcrumb-custom {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .breadcrumb-custom a {
+            color: var(--admin-purple);
+            text-decoration: none;
+        }
+
+        .form-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+            max-width: 720px;
+        }
+
+        .form-card .card-header {
+            background: linear-gradient(135deg, #4c1d95, #7c3aed);
+            color: white;
+            padding: 22px 28px;
+        }
+
+        .form-card .card-header h4 {
+            font-weight: 800;
+            margin: 0;
+            font-size: 1.15rem;
+        }
+
+        .form-card .card-body {
+            background: white;
+            padding: 28px;
+        }
+
+        .form-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1.5px solid #e5e7eb;
+            font-size: 0.875rem;
+            padding: 9px 13px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--admin-purple);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.12);
+        }
+
+        .section-divider {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #9ca3af;
+            padding: 10px 0 4px;
+            border-bottom: 1px solid #f1f5f9;
+            margin-bottom: 18px;
+        }
+
+        .btn-salvar {
+            background: linear-gradient(135deg, #6d28d9, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 28px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-salvar:hover {
+            background: linear-gradient(135deg, #5b21b6, #6d28d9);
+            color: white;
+            box-shadow: 0 4px 14px rgba(124,58,237,0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-cancelar {
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: #6b7280;
+            border: 1.5px solid #e5e7eb;
+            background: white;
+            transition: all 0.18s;
+        }
+
+        .btn-cancelar:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0 !important; }
+            .form-card { max-width: 100%; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <div th:replace="~{fragments/sidebar :: sidebar('admin')}"></div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+
+        <!-- BREADCRUMB -->
+        <div class="breadcrumb-custom mb-3">
+            <a th:href="@{/admin}"><i class="fa-solid fa-shield-halved me-1"></i>Administração</a>
+            <span class="mx-1">/</span>
+            <a th:href="@{/admin/clientes}">Clientes</a>
+            <span class="mx-1">/</span>
+            <span th:text="${modoEdicao} ? 'Editar' : 'Novo Cliente'"></span>
+        </div>
+
+        <!-- FORMULÁRIO -->
+        <div class="card form-card">
+            <div class="card-header">
+                <h4>
+                    <i class="fa-solid me-2"
+                       th:classappend="${modoEdicao} ? 'fa-pen-to-square' : 'fa-plus-circle'"></i>
+                    <span th:text="${modoEdicao} ? 'Editar Cliente' : 'Cadastrar Novo Cliente'"></span>
+                </h4>
+                <small style="opacity:0.7;" th:text="${modoEdicao}
+                    ? 'Atualize os dados cadastrais do cliente abaixo.'
+                    : 'Preencha os dados para cadastrar um novo cliente na plataforma.'">
+                </small>
+            </div>
+            <div class="card-body">
+
+                <!-- FORM NOVO -->
+                <form th:if="${!modoEdicao}"
+                      th:action="@{/admin/clientes/novo}"
+                      th:object="${cliente}"
+                      method="post">
+
+                    <!-- Dados da Empresa -->
+                    <div class="section-divider"><i class="fa-solid fa-building me-1"></i> Dados da Empresa</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="nomeEmpresaNovo">Nome da Empresa <span class="text-danger">*</span></label>
+                            <input type="text" id="nomeEmpresaNovo" class="form-control"
+                                   th:field="*{nomeEmpresa}" placeholder="Ex: Calango Solutions Ltda" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="nomeResponsavelNovo">Nome do Responsável <span class="text-danger">*</span></label>
+                            <input type="text" id="nomeResponsavelNovo" class="form-control"
+                                   th:field="*{nomeResponsavel}" placeholder="Ex: João Silva" required>
+                        </div>
+                    </div>
+
+                    <!-- Contato -->
+                    <div class="section-divider"><i class="fa-solid fa-address-card me-1"></i> Contato</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="emailNovo">E-mail <span class="text-danger">*</span></label>
+                            <input type="email" id="emailNovo" class="form-control"
+                                   th:field="*{email}" placeholder="empresa@email.com" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="telefoneNovo">Telefone</label>
+                            <input type="text" id="telefoneNovo" class="form-control"
+                                   th:field="*{telefone}" placeholder="(00) 00000-0000">
+                        </div>
+                    </div>
+
+                    <!-- Acesso ao Sistema -->
+                    <div class="section-divider"><i class="fa-solid fa-key me-1"></i> Acesso ao Sistema</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="cpfNovo">CPF <span class="text-danger">*</span></label>
+                            <input type="text" id="cpfNovo" class="form-control"
+                                   th:field="*{cpf}" placeholder="000.000.000-00" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="senhaNovo">Senha Inicial <span class="text-danger">*</span></label>
+                            <input type="password" id="senhaNovo" class="form-control"
+                                   th:field="*{senha}" placeholder="Senha de primeiro acesso" required
+                                   autocomplete="new-password">
+                            <small class="text-muted" style="font-size:0.75rem;">
+                                <i class="fa-solid fa-circle-info me-1"></i>
+                                O cliente será obrigado a trocar esta senha no primeiro login.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Contrato -->
+                    <div class="section-divider"><i class="fa-solid fa-file-contract me-1"></i> Contrato</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label" for="planoNovo">Plano</label>
+                            <select id="planoNovo" class="form-select" th:field="*{plano}">
+                                <option value="">— Selecione o plano —</option>
+                                <option value="BÁSICO">Básico</option>
+                                <option value="PROFISSIONAL">Profissional</option>
+                                <option value="ENTERPRISE">Enterprise</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="statusNovo">Status</label>
+                            <select id="statusNovo" class="form-select" th:field="*{status}">
+                                <option value="ATIVO">Ativo</option>
+                                <option value="BLOQUEADO">Bloqueado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- BOTÕES -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-salvar">
+                            <i class="fa-solid fa-floppy-disk me-2"></i>Cadastrar Cliente
+                        </button>
+                        <a th:href="@{/admin/clientes}" class="btn btn-cancelar">Cancelar</a>
+                    </div>
+
+                </form>
+
+                <!-- FORM EDIÇÃO -->
+                <form th:if="${modoEdicao}"
+                      th:action="@{/admin/clientes/{id}/editar(id=${cliente.id})}"
+                      th:object="${cliente}"
+                      method="post">
+
+                    <!-- Dados da Empresa -->
+                    <div class="section-divider"><i class="fa-solid fa-building me-1"></i> Dados da Empresa</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="nomeEmpresaEdit">Nome da Empresa <span class="text-danger">*</span></label>
+                            <input type="text" id="nomeEmpresaEdit" class="form-control"
+                                   th:field="*{nomeEmpresa}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="nomeResponsavelEdit">Nome do Responsável <span class="text-danger">*</span></label>
+                            <input type="text" id="nomeResponsavelEdit" class="form-control"
+                                   th:field="*{nomeResponsavel}" required>
+                        </div>
+                    </div>
+
+                    <!-- Contato -->
+                    <div class="section-divider"><i class="fa-solid fa-address-card me-1"></i> Contato</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="emailEdit">E-mail <span class="text-danger">*</span></label>
+                            <input type="email" id="emailEdit" class="form-control"
+                                   th:field="*{email}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="telefoneEdit">Telefone</label>
+                            <input type="text" id="telefoneEdit" class="form-control"
+                                   th:field="*{telefone}">
+                        </div>
+                    </div>
+
+                    <!-- Acesso ao Sistema -->
+                    <div class="section-divider"><i class="fa-solid fa-key me-1"></i> Acesso ao Sistema</div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="cpfEdit">CPF <span class="text-danger">*</span></label>
+                            <input type="text" id="cpfEdit" class="form-control"
+                                   th:field="*{cpf}" placeholder="000.000.000-00" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="senhaEdit">Redefinir Senha</label>
+                            <input type="password" id="senhaEdit" class="form-control"
+                                   name="senha" placeholder="Deixe vazio para manter a atual"
+                                   autocomplete="new-password">
+                            <small class="text-muted" style="font-size:0.75rem;">
+                                <i class="fa-solid fa-circle-info me-1"></i>
+                                Se preenchido, o cliente trocará a senha no próximo login.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Contrato -->
+                    <div class="section-divider"><i class="fa-solid fa-file-contract me-1"></i> Contrato</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label" for="planoEdit">Plano</label>
+                            <select id="planoEdit" class="form-select" th:field="*{plano}">
+                                <option value="">— Selecione o plano —</option>
+                                <option value="BÁSICO">Básico</option>
+                                <option value="PROFISSIONAL">Profissional</option>
+                                <option value="ENTERPRISE">Enterprise</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="statusEdit">Status</label>
+                            <select id="statusEdit" class="form-select" th:field="*{status}">
+                                <option value="ATIVO">Ativo</option>
+                                <option value="BLOQUEADO">Bloqueado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- BOTÕES -->
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-salvar">
+                            <i class="fa-solid fa-floppy-disk me-2"></i>Salvar Alterações
+                        </button>
+                        <a th:href="@{/admin/clientes/{id}(id=${cliente.id})}" class="btn btn-cancelar">Cancelar</a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

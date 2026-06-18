@@ -10,7 +10,9 @@ import java.util.List;
 @Repository
 public interface ServicoTabelaRepository extends JpaRepository<ServicoTabela, Long> {
 
-    Optional<ServicoTabela> findByTagIgnoreCase(String tag);
+    Optional<ServicoTabela> findByIdAndClienteDonoId(Long id, Long clienteId);
 
-    List<ServicoTabela> findAllByOrderByTagAsc();
+    Optional<ServicoTabela> findByClienteDonoIdAndTagIgnoreCase(Long clienteId, String tag);
+
+    List<ServicoTabela> findAllByClienteDonoIdOrderByTagAsc(Long clienteId);
 }

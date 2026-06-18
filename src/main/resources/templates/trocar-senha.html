@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Definir Nova Senha - Calango</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            /* Fundo branco com toque de laranja/amarelo nas bordas */
+            background: linear-gradient(145deg, #fff8f0 0%, #fff3e0 30%, #fffbeb 60%, #f9fafb 100%);
+            padding: 20px;
+        }
+
+        /* Círculos decorativos na paleta laranja/amarelo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -80px; right: -80px;
+            width: 340px; height: 340px;
+            background: radial-gradient(circle, rgba(255,107,0,0.07) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -100px; left: -60px;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .card-wrapper {
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* AVISO DE PRIMEIRO ACESSO — tom âmbar/amarelo */
+        .first-access-banner {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.45);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .first-access-banner .icon {
+            font-size: 1.3rem;
+            color: #d97706;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .first-access-banner p {
+            color: #92400e;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .first-access-banner p strong {
+            color: #78350f;
+        }
+
+        /* CARD PRINCIPAL */
+        .auth-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(255,107,0,0.12), 0 4px 16px rgba(0,0,0,0.06);
+            overflow: hidden;
+            border: 1px solid rgba(255,107,0,0.08);
+        }
+
+        /* HEADER — gradiente laranja Calango */
+        .card-header-custom {
+            background: linear-gradient(135deg, #e65c00 0%, #ff6b00 50%, #ff8c42 100%);
+            padding: 28px 32px;
+            text-align: center;
+            position: relative;
+        }
+
+        .card-header-custom::before {
+            content: '';
+            position: absolute;
+            top: -30px; right: -30px;
+            width: 120px; height: 120px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+        }
+
+        .card-header-custom::after {
+            content: '';
+            position: absolute;
+            bottom: -20px; left: -20px;
+            width: 80px; height: 80px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .lock-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.35);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+            font-size: 1.6rem;
+            color: white;
+        }
+
+        .card-header-custom h4 {
+            color: white;
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        .card-header-custom p {
+            color: rgba(255,255,255,0.85);
+            font-size: 0.83rem;
+        }
+
+        /* BODY DO CARD */
+        .card-body-custom {
+            padding: 28px 32px;
+            background: #ffffff;
+        }
+
+        /* Saudação — fundo levemente amarelado */
+        .greeting {
+            font-size: 0.9rem;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: #fff8f0;
+            border-radius: 10px;
+            border-left: 3px solid #ff6b00;
+        }
+
+        .greeting span {
+            font-weight: 700;
+            color: #c2410c;
+        }
+
+        /* INPUTS */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 7px;
+            display: block;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            border-radius: 11px;
+            border: 1.5px solid #e5e7eb;
+            padding: 11px 42px 11px 38px;
+            font-size: 0.9rem;
+            width: 100%;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+            background: #fafafa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #ff6b00;
+            box-shadow: 0 0 0 3px rgba(255,107,0,0.12);
+            background: #fff;
+        }
+
+        .toggle-senha {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            font-size: 0.9rem;
+            padding: 0;
+            transition: color 0.18s;
+        }
+
+        .toggle-senha:hover { color: #ff6b00; }
+
+        /* INDICADOR DE FORÇA */
+        .strength-bar {
+            height: 4px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease, background 0.3s ease;
+            width: 0%;
+        }
+
+        .strength-label {
+            font-size: 0.72rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        /* ALERTA DE ERRO */
+        .alert-erro {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 0.84rem;
+            color: #dc2626;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* BOTÃO — laranja Calango */
+        .btn-definir {
+            width: 100%;
+            background: linear-gradient(135deg, #e65c00, #ff6b00);
+            color: white;
+            border: none;
+            border-radius: 11px;
+            padding: 13px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-definir:hover {
+            background: linear-gradient(135deg, #c2410c, #e65c00);
+            box-shadow: 0 6px 20px rgba(255,107,0,0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-definir:active { transform: translateY(0); }
+
+        /* REQUISITOS — fundo cinza suave */
+        .requisitos {
+            margin-top: 18px;
+            padding: 12px 15px;
+            background: #f9fafb;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            color: #6b7280;
+            border: 1px solid #f1f5f9;
+        }
+
+        .requisitos ul {
+            list-style: none;
+            margin: 6px 0 0;
+            padding: 0;
+        }
+
+        .requisitos li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 3px;
+        }
+
+        .requisitos li i { font-size: 0.7rem; }
+        .req-ok { color: #16a34a; }
+        .req-fail { color: #d1d5db; }
+
+        /* Logo Calango no topo do header */
+        .calango-brand {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card-wrapper">
+
+        <!-- AVISO DE PRIMEIRO ACESSO -->
+        <div class="first-access-banner">
+            <i class="fa-solid fa-circle-exclamation icon"></i>
+            <p>
+                <strong>Primeiro acesso detectado.</strong><br>
+                Por segurança, você precisa definir uma nova senha antes de continuar.
+            </p>
+        </div>
+
+        <!-- CARD DE TROCA DE SENHA -->
+        <div class="auth-card">
+            <div class="card-header-custom">
+                <div class="calango-brand">&#128994; CALANGO</div>
+                <div class="lock-icon-wrapper">
+                    <i class="fa-solid fa-lock-open"></i>
+                </div>
+                <h4>Defina sua Nova Senha</h4>
+                <p>Esta senha substituirá a senha inicial cadastrada pelo administrador.</p>
+            </div>
+
+            <div class="card-body-custom">
+
+                <!-- Saudação personalizada -->
+                <div class="greeting" th:if="${clienteNome != null}">
+                    Olá, <span th:text="${clienteNome}">Cliente</span>! 👋
+                </div>
+
+                <!-- Alerta de erro -->
+                <div class="alert-erro" th:if="${erro != null}">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <span th:text="${erro}"></span>
+                </div>
+
+                <form id="formTrocaSenha" th:action="@{/trocar-senha}" method="post" onsubmit="return validarForm()">
+
+                    <!-- Nova Senha -->
+                    <div class="form-group">
+                        <label class="form-label" for="novaSenha">
+                            <i class="fa-solid fa-key me-1" style="color:#ff6b00;"></i>Nova Senha
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="password" id="novaSenha" name="novaSenha"
+                                   class="form-control"
+                                   placeholder="Digite sua nova senha"
+                                   oninput="verificarForca(this.value)"
+                                   required>
+                            <button type="button" class="toggle-senha" onclick="toggleVisibilidade('novaSenha', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <!-- Barra de força -->
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <div class="strength-label" id="strengthLabel">Digite sua senha</div>
+                    </div>
+
+                    <!-- Confirmação -->
+                    <div class="form-group">
+                        <label class="form-label" for="confirmacao">
+                            <i class="fa-solid fa-shield-check me-1" style="color:#ff6b00;"></i>Confirmar Nova Senha
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="password" id="confirmacao" name="confirmacao"
+                                   class="form-control"
+                                   placeholder="Repita a nova senha"
+                                   oninput="verificarMatch()"
+                                   required>
+                            <button type="button" class="toggle-senha" onclick="toggleVisibilidade('confirmacao', this)">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <div id="matchMsg" style="font-size:0.75rem; margin-top:5px;"></div>
+                    </div>
+
+                    <button type="submit" class="btn-definir" id="btnDefinir">
+                        <i class="fa-solid fa-check-circle me-2"></i>Definir Minha Senha
+                    </button>
+
+                </form>
+
+                <!-- Requisitos -->
+                <div class="requisitos">
+                    <strong>Requisitos da senha:</strong>
+                    <ul>
+                        <li id="req-len"><i class="fa-solid fa-circle req-fail"></i> Mínimo de 6 caracteres</li>
+                        <li id="req-match"><i class="fa-solid fa-circle req-fail"></i> Senhas devem coincidir</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Mostra/esconde senha
+        function toggleVisibilidade(fieldId, btn) {
+            var field = document.getElementById(fieldId);
+            var icon = btn.querySelector('i');
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                field.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        // Barra de força da senha
+        function verificarForca(senha) {
+            var fill = document.getElementById('strengthFill');
+            var label = document.getElementById('strengthLabel');
+            var reqLen = document.getElementById('req-len');
+            var len = senha.length;
+
+            // Requisito de comprimento
+            if (len >= 6) {
+                reqLen.querySelector('i').className = 'fa-solid fa-circle req-ok';
+            } else {
+                reqLen.querySelector('i').className = 'fa-solid fa-circle req-fail';
+            }
+
+            var score = 0;
+            if (len >= 6) score++;
+            if (len >= 8) score++;
+            if (/[A-Z]/.test(senha)) score++;
+            if (/[0-9]/.test(senha)) score++;
+            if (/[^A-Za-z0-9]/.test(senha)) score++;
+
+            var pct = Math.min((score / 5) * 100, 100);
+            fill.style.width = pct + '%';
+
+            if (score <= 1) {
+                fill.style.background = '#ef4444';
+                label.textContent = 'Senha fraca';
+                label.style.color = '#ef4444';
+            } else if (score <= 3) {
+                fill.style.background = '#f59e0b';
+                label.textContent = 'Senha média';
+                label.style.color = '#f59e0b';
+            } else {
+                fill.style.background = '#16a34a';
+                label.textContent = 'Senha forte!';
+                label.style.color = '#16a34a';
+            }
+
+            verificarMatch();
+        }
+
+        // Verifica se as senhas coincidem
+        function verificarMatch() {
+            var nova = document.getElementById('novaSenha').value;
+            var conf = document.getElementById('confirmacao').value;
+            var msg = document.getElementById('matchMsg');
+            var reqMatch = document.getElementById('req-match');
+
+            if (conf.length === 0) {
+                msg.textContent = '';
+                reqMatch.querySelector('i').className = 'fa-solid fa-circle req-fail';
+                return;
+            }
+
+            if (nova === conf) {
+                msg.textContent = '✓ Senhas coincidem';
+                msg.style.color = '#16a34a';
+                reqMatch.querySelector('i').className = 'fa-solid fa-circle req-ok';
+            } else {
+                msg.textContent = '✗ Senhas não coincidem';
+                msg.style.color = '#ef4444';
+                reqMatch.querySelector('i').className = 'fa-solid fa-circle req-fail';
+            }
+        }
+
+        // Validação antes de submeter
+        function validarForm() {
+            var nova = document.getElementById('novaSenha').value;
+            var conf = document.getElementById('confirmacao').value;
+
+            if (nova.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return false;
+            }
+            if (nova !== conf) {
+                alert('As senhas não coincidem.');
+                return false;
+            }
+            return true;
+        }
+    </script>
+
+</body>
+</html>

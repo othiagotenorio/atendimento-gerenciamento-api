@@ -12,6 +12,10 @@ public class Despesa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cliente_id")
+    private Cliente clienteDono;
+
     @Column(nullable = false)
     private String descricao;
 
@@ -35,6 +39,9 @@ public class Despesa {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public Cliente getClienteDono() { return clienteDono; }
+    public void setClienteDono(Cliente clienteDono) { this.clienteDono = clienteDono; }
 
     public String getDescricao() { return descricao; }
     public void setDescricao(String descricao) { this.descricao = descricao; }

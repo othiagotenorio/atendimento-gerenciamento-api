@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 import com.gerencimaneto.financeiro.model.ServicoTabela;
 import com.gerencimaneto.financeiro.service.ServicoTabelaService;
 
@@ -22,8 +23,10 @@ public class ServicoTabelaController {
      */
     @GetMapping
     @ResponseBody
-    public ResponseEntity<List<ServicoTabela>> listarServicos() {
-        return ResponseEntity.ok(service.listarTodos());
+    public ResponseEntity<List<ServicoTabela>> listarServicos(HttpSession session) {
+        Long clienteId = (Long) session.getAttribute("clienteId");
+        if (clienteId == null) return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(service.listarTodos(clienteId));
     }
 
     /**
@@ -32,14 +35,18 @@ public class ServicoTabelaController {
     @PostMapping("/salvar")
     @ResponseBody
     public ResponseEntity<ServicoTabela> salvarServico(
+            HttpSession session,
             @RequestParam("tag") String tag,
             @RequestParam("valor") BigDecimal valor) {
+
+        Long clienteId = (Long) session.getAttribute("clienteId");
+        if (clienteId == null) return ResponseEntity.status(401).build();
 
         if (tag == null || tag.isBlank()) {
             return ResponseEntity.badRequest().build();
         }
 
-        ServicoTabela salvo = service.salvar(tag, valor);
+        ServicoTabela salvo = service.salvar(clienteId, tag, valor);
         return ResponseEntity.ok(salvo);
     }
 
@@ -48,8 +55,11 @@ public class ServicoTabelaController {
      */
     @PostMapping("/deletar/{id}")
     @ResponseBody
-    public ResponseEntity<Void> deletarServico(@PathVariable("id") Long id) {
-        service.deletar(id);
+    public ResponseEntity<Void> deletarServico(HttpSession session, @PathVariable("id") Long id) {
+        Long clienteId = (Long) session.getAttribute("clienteId");
+        if (clienteId != null) {
+            service.deletar(clienteId, id);
+        }
         return ResponseEntity.ok().build();
     }
 }
