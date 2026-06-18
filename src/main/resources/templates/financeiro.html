@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financeiro - Calango</title>
+    <meta name="description" content="Painel financeiro completo com receitas, despesas, rankings e simulador de metas.">
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --laranja: #ff6b00;
+            --laranja-soft: #fff3e8;
+            --cinza-escuro: #1a1d23;
+            --cinza-sidebar: #212529;
+            --cinza-corpo: #f0f2f7;
+            --verde: #22c55e;
+            --verde-soft: #dcfce7;
+            --vermelho: #ef4444;
+            --vermelho-soft: #fee2e2;
+            --azul: #3b82f6;
+            --azul-soft: #dbeafe;
+            --roxo: #8b5cf6;
+            --roxo-soft: #ede9fe;
+            --card-radius: 14px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--cinza-corpo);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-size: 0.92rem;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 240px; /* ajustado pelo sidebar toggle JS */
+            padding: 28px 30px;
+            min-height: 100vh;
+            transition: margin-left 0.28s ease, padding-left 0.28s ease;
+        }
+
+        /* ===== PAGE HEADER ===== */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #111827;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 0.83rem;
+            margin: 2px 0 0;
+        }
+
+        /* ===== PERIODO FILTER ===== */
+        .period-filter {
+            display: flex;
+            background: white;
+            border-radius: 10px;
+            padding: 4px;
+            box-shadow: var(--shadow);
+            gap: 2px;
+        }
+
+        .period-btn {
+            padding: 7px 18px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.18s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .period-btn:hover { background: #f3f4f6; color: #374151; }
+        .period-btn.active { background: var(--laranja); color: white; }
+
+        /* ===== KPI CARDS ===== */
+        .kpi-card {
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid transparent;
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+        }
+
+        .kpi-card.receita { border-left-color: var(--verde); }
+        .kpi-card.ticket { border-left-color: var(--azul); }
+        .kpi-card.despesa { border-left-color: var(--vermelho); }
+        .kpi-card.lucro { border-left-color: var(--laranja); }
+
+        .kpi-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .kpi-icon.verde { background: var(--verde-soft); color: var(--verde); }
+        .kpi-icon.azul { background: var(--azul-soft); color: var(--azul); }
+        .kpi-icon.vermelho { background: var(--vermelho-soft); color: var(--vermelho); }
+        .kpi-icon.laranja { background: var(--laranja-soft); color: var(--laranja); }
+        .kpi-icon.roxo { background: var(--roxo-soft); color: var(--roxo); }
+
+        .kpi-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #9ca3af;
+            margin-bottom: 4px;
+        }
+
+        .kpi-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1.2;
+        }
+
+        .kpi-sub {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 4px;
+        }
+
+        /* ===== CHART CARDS ===== */
+        .chart-card {
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            height: 100%;
+        }
+
+        .card-title-custom {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title-custom i {
+            color: var(--laranja);
+            font-size: 0.95rem;
+        }
+
+        /* ===== RANKING TABLE ===== */
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ranking-table th {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #9ca3af;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .ranking-table td {
+            padding: 9px 10px;
+            font-size: 0.84rem;
+            color: #374151;
+            border-bottom: 1px solid #f9fafb;
+        }
+
+        .ranking-table tr:last-child td { border-bottom: none; }
+        .ranking-table tr:hover td { background: #f9fafb; }
+
+        .rank-pos {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center; justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        .rank-1 { background: #fef3c7; color: #d97706; }
+        .rank-2 { background: #f3f4f6; color: #6b7280; }
+        .rank-3 { background: #fce7d2; color: #c2440e; }
+        .rank-n { background: #f9fafb; color: #9ca3af; }
+
+        /* ===== DESPESAS ===== */
+        .despesa-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #fafafa;
+            border: 1px solid #f0f0f0;
+            margin-bottom: 6px;
+            transition: background 0.15s;
+        }
+
+        .despesa-row:hover { background: #fff3e8; }
+
+        .cat-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .cat-aluguel { background: #dbeafe; color: #1d4ed8; }
+        .cat-material { background: #dcfce7; color: #15803d; }
+        .cat-energia { background: #fef9c3; color: #a16207; }
+        .cat-outros { background: #f3f4f6; color: #6b7280; }
+
+        /* ===== SIMULADOR ===== */
+        .simulador-card {
+            background: linear-gradient(135deg, #1a1d23 0%, #2d3139 100%);
+            border-radius: var(--card-radius);
+            padding: 24px;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .simulador-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #e5e7eb;
+            margin-bottom: 4px;
+        }
+
+        .simulador-input-group label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .simulador-input {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            width: 100%;
+        }
+
+        .simulador-input:focus {
+            outline: none;
+            border-color: var(--laranja);
+            background: rgba(255,107,0,0.1);
+            color: white;
+        }
+
+        .simulador-result {
+            background: rgba(255,107,0,0.15);
+            border: 1px solid rgba(255,107,0,0.35);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .sim-label {
+            font-size: 0.72rem;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .sim-value {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--laranja);
+        }
+
+        /* ===== TABS ===== */
+        .custom-tabs {
+            border-bottom: 2px solid #f3f4f6;
+            display: flex;
+            gap: 0;
+            margin-bottom: 16px;
+        }
+
+        .custom-tab {
+            padding: 9px 18px;
+            font-size: 0.83rem;
+            font-weight: 600;
+            color: #9ca3af;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.18s;
+        }
+
+        .custom-tab.active {
+            color: var(--laranja);
+            border-bottom-color: var(--laranja);
+        }
+
+        .tab-pane-custom { display: none; }
+        .tab-pane-custom.active { display: block; }
+
+        /* ===== EMPTY STATES ===== */
+        .empty-state {
+            text-align: center;
+            padding: 30px 16px;
+            color: #9ca3af;
+        }
+
+        .empty-state i { font-size: 2rem; margin-bottom: 8px; }
+        .empty-state p { font-size: 0.83rem; margin: 0; }
+
+        /* ===== PROGRESS BARS ===== */
+        .progress-bar-custom {
+            height: 6px;
+            background: #f3f4f6;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--laranja), #ff9b4a);
+            border-radius: 99px;
+            transition: width 0.6s ease;
+        }
+
+        .progress-fill.verde { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .progress-fill.azul { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .progress-fill.roxo { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
+
+        /* ===== BUTTONS ===== */
+        .btn-laranja {
+            background: var(--laranja);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.18s;
+        }
+
+        .btn-laranja:hover { background: #e05e00; color: white; }
+
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content { margin-left: 0 !important; padding: 16px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ======================================================= -->
+<!-- SIDEBAR (fragmento centralizado) -->
+<!-- ======================================================= -->
+<div th:replace="~{fragments/sidebar :: sidebar('financeiro')}"></div>
+
+<!-- ======================================================= -->
+<!-- MAIN CONTENT -->
+<!-- ======================================================= -->
+<div class="main-content">
+
+    <!-- PAGE HEADER + FILTROS -->
+    <div class="page-header">
+        <div>
+            <h1 class="page-title"><i class="fa-solid fa-wallet me-2" style="color: var(--laranja);"></i>Painel Financeiro</h1>
+            <p class="page-subtitle"
+               th:text="'Período: ' + ${#temporals.format(inicio, 'dd/MM/yyyy')} + ' a ' + ${#temporals.format(fim, 'dd/MM/yyyy')}">
+                Período de análise
+            </p>
+        </div>
+
+        <!-- Seletor de Período -->
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <!-- Date picker form -->
+            <form th:action="@{/financeiro}" method="get" class="d-flex align-items-center gap-1">
+                <input type="hidden" name="periodo" th:value="${periodo}">
+                <input type="date" name="data" id="dataPicker"
+                       th:value="${#temporals.format(referencia, 'yyyy-MM-dd')}"
+                       class="form-control form-control-sm" style="width: 150px; font-size:0.82rem; border-radius:8px;"
+                       onchange="this.form.submit()">
+            </form>
+
+            <div class="period-filter">
+                <a th:href="@{/financeiro(periodo='dia', data=${#temporals.format(referencia, 'yyyy-MM-dd')})}"
+                   th:classappend="${periodo == 'dia'} ? 'active'" class="period-btn">Dia</a>
+                <a th:href="@{/financeiro(periodo='semana', data=${#temporals.format(referencia, 'yyyy-MM-dd')})}"
+                   th:classappend="${periodo == 'semana'} ? 'active'" class="period-btn">Semana</a>
+                <a th:href="@{/financeiro(periodo='mes', data=${#temporals.format(referencia, 'yyyy-MM-dd')})}"
+                   th:classappend="${periodo == 'mes'} ? 'active'" class="period-btn">Mês</a>
+                <a th:href="@{/financeiro(periodo='ano', data=${#temporals.format(referencia, 'yyyy-MM-dd')})}"
+                   th:classappend="${periodo == 'ano'} ? 'active'" class="period-btn">Ano</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- KPI CARDS -->
+    <!-- ===================================================== -->
+    <div class="row g-3 mb-4">
+        <!-- Receita Total -->
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card receita">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="kpi-label">Receita Total</div>
+                        <div class="kpi-value text-success"
+                             th:text="'R$ ' + ${#numbers.formatDecimal(receita, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+                        <div class="kpi-sub" th:text="${totalAtendimentos} + ' atendimento(s) realizado(s)'">0 atendimentos</div>
+                    </div>
+                    <div class="kpi-icon verde">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticket Médio -->
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card ticket">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="kpi-label">Ticket Médio</div>
+                        <div class="kpi-value text-primary"
+                             th:text="'R$ ' + ${#numbers.formatDecimal(ticketMedio, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+                        <div class="kpi-sub">Por atendimento realizado</div>
+                    </div>
+                    <div class="kpi-icon azul">
+                        <i class="fa-solid fa-receipt"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Despesas -->
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card despesa">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="kpi-label">Total Despesas</div>
+                        <div class="kpi-value text-danger"
+                             th:text="'R$ ' + ${#numbers.formatDecimal(totalDespesas, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+                        <div class="kpi-sub" th:text="${#lists.size(despesas)} + ' despesa(s) no período'">0 despesas</div>
+                    </div>
+                    <div class="kpi-icon vermelho">
+                        <i class="fa-solid fa-arrow-trend-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lucro Líquido -->
+        <div class="col-lg-3 col-md-6">
+            <div class="kpi-card lucro">
+                <div class="d-flex align-items-start justify-content-between">
+                    <div>
+                        <div class="kpi-label">Lucro Líquido</div>
+                        <div class="kpi-value"
+                             th:classappend="${lucroLiquido.compareTo(T(java.math.BigDecimal).ZERO) >= 0} ? 'text-warning' : 'text-danger'"
+                             th:text="'R$ ' + ${#numbers.formatDecimal(lucroLiquido, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+                        <div class="kpi-sub">Receita menos despesas</div>
+                    </div>
+                    <div class="kpi-icon laranja">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- GRÁFICOS -->
+    <!-- ===================================================== -->
+    <div class="row g-3 mb-4">
+        <!-- Gráfico de Ganhos (linha) -->
+        <div class="col-lg-8">
+            <div class="chart-card">
+                <div class="card-title-custom">
+                    <i class="fa-solid fa-chart-line"></i>
+                    Evolução de Ganhos
+                    <span class="ms-auto badge" style="background:#fff3e8;color:var(--laranja);font-size:0.72rem;font-weight:700;"
+                          th:text="${#strings.toUpperCase(periodo)}">MÊS</span>
+                </div>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="graficoGanhos"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Serviços (doughnut) -->
+        <div class="col-lg-4">
+            <div class="chart-card">
+                <div class="card-title-custom">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    Top Serviços
+                </div>
+                <div style="position: relative; height: 200px; margin-bottom: 12px;">
+                    <canvas id="graficoServicos"></canvas>
+                </div>
+                <!-- Legenda simples -->
+                <div id="legendaServicos" style="font-size:0.76rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================== -->
+    <!-- RANKINGS + DESPESAS + SIMULADOR -->
+    <!-- ===================================================== -->
+    <div class="row g-3">
+
+        <!-- RANKINGS (col-lg-5) -->
+        <div class="col-lg-5">
+            <div class="chart-card">
+                <div class="card-title-custom">
+                    <i class="fa-solid fa-trophy"></i>
+                    Rankings
+                </div>
+
+                <!-- Tabs -->
+                <div class="custom-tabs">
+                    <div class="custom-tab active" onclick="showTab('clientes', this)">
+                        <i class="fa-solid fa-users me-1"></i> Clientes
+                    </div>
+                    <div class="custom-tab" onclick="showTab('servicos', this)">
+                        <i class="fa-solid fa-scissors me-1"></i> Serviços
+                    </div>
+                </div>
+
+                <!-- Tab Clientes -->
+                <div id="tab-clientes" class="tab-pane-custom active">
+                    <div th:if="${#lists.isEmpty(rankingClientes)}" class="empty-state">
+                        <i class="fa-regular fa-face-meh"></i>
+                        <p>Nenhum atendimento realizado neste período.</p>
+                    </div>
+                    <table class="ranking-table" th:if="${!#lists.isEmpty(rankingClientes)}">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Cliente</th>
+                                <th class="text-end">Atend.</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item, stat : ${rankingClientes}">
+                                <td>
+                                    <span class="rank-pos"
+                                          th:classappend="${stat.index == 0} ? 'rank-1' : (${stat.index == 1} ? 'rank-2' : (${stat.index == 2} ? 'rank-3' : 'rank-n'))"
+                                          th:text="${stat.count}">1</span>
+                                </td>
+                                <td class="fw-semibold" th:text="${item.nome}">Cliente</td>
+                                <td class="text-end text-muted" th:text="${item.quantidade}">0</td>
+                                <td class="text-end fw-bold text-success"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(item.total, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tab Serviços -->
+                <div id="tab-servicos" class="tab-pane-custom">
+                    <div th:if="${#lists.isEmpty(rankingServicos)}" class="empty-state">
+                        <i class="fa-regular fa-face-meh"></i>
+                        <p>Nenhum serviço realizado neste período.</p>
+                    </div>
+                    <table class="ranking-table" th:if="${!#lists.isEmpty(rankingServicos)}">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Serviço</th>
+                                <th class="text-end">Qtd.</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item, stat : ${rankingServicos}">
+                                <td>
+                                    <span class="rank-pos"
+                                          th:classappend="${stat.index == 0} ? 'rank-1' : (${stat.index == 1} ? 'rank-2' : (${stat.index == 2} ? 'rank-3' : 'rank-n'))"
+                                          th:text="${stat.count}">1</span>
+                                </td>
+                                <td class="fw-semibold" style="max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+                                    th:text="${item.nome}" th:title="${item.nome}">Serviço</td>
+                                <td class="text-end text-muted" th:text="${item.quantidade}">0</td>
+                                <td class="text-end fw-bold text-success"
+                                    th:text="'R$ ' + ${#numbers.formatDecimal(item.total, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- DESPESAS (col-lg-4) -->
+        <div class="col-lg-4">
+            <div class="chart-card" style="max-height: 440px; overflow-y: auto;">
+                <div class="card-title-custom d-flex align-items-center">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    Despesas do Período
+                    <button class="btn-laranja ms-auto" style="padding: 5px 12px; font-size:0.78rem;"
+                            data-bs-toggle="modal" data-bs-target="#modalNovaDespesa">
+                        <i class="fa-solid fa-plus me-1"></i> Nova
+                    </button>
+                </div>
+
+                <div th:if="${#lists.isEmpty(despesas)}" class="empty-state">
+                    <i class="fa-regular fa-folder-open"></i>
+                    <p>Nenhuma despesa cadastrada neste período.</p>
+                </div>
+
+                <div th:each="d : ${despesas}" class="despesa-row">
+                    <div style="flex: 1; min-width: 0;">
+                        <div class="fw-semibold" style="font-size:0.84rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"
+                             th:text="${d.descricao}">Descrição</div>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="cat-badge"
+                                  th:classappend="${d.categoria == 'Aluguel'} ? 'cat-aluguel' : (${d.categoria == 'Material'} ? 'cat-material' : (${d.categoria == 'Energia'} ? 'cat-energia' : 'cat-outros'))"
+                                  th:text="${d.categoria}">Categoria</span>
+                            <span style="font-size:0.72rem; color:#9ca3af;"
+                                  th:text="${#temporals.format(d.data, 'dd/MM/yyyy')}">00/00/0000</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 ms-2">
+                        <span class="fw-bold text-danger" style="font-size:0.9rem; white-space:nowrap;"
+                              th:text="'R$ ' + ${#numbers.formatDecimal(d.valor, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</span>
+                        <a th:href="@{/financeiro/despesas/deletar/{id}(id=${d.id}, periodo=${periodo}, referencia=${#temporals.format(referencia, 'yyyy-MM-dd')})}"
+                           class="btn btn-sm btn-outline-danger py-0 px-1"
+                           onclick="return confirm('Excluir esta despesa?')"
+                           style="border-radius: 5px;">
+                            <i class="fa-solid fa-trash" style="font-size:0.75rem;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SIMULADOR (col-lg-3) -->
+        <div class="col-lg-3">
+            <div class="simulador-card" style="min-height: 100%;">
+                <div class="d-flex align-items-center gap-2 mb-16" style="margin-bottom: 16px;">
+                    <div class="kpi-icon laranja">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <div class="simulador-title">Simulador Financeiro</div>
+                        <div style="font-size:0.72rem; color:#6b7280;">Projete seus resultados</div>
+                    </div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-12 simulador-input-group">
+                        <label for="simReceita" class="mb-1">Receita base (R$)</label>
+                        <input type="number" id="simReceita" class="simulador-input"
+                               step="0.01" min="0" placeholder="0,00"
+                               th:value="${receita}">
+                    </div>
+                    <div class="col-6 simulador-input-group">
+                        <label for="simCrescimento" class="mb-1">Crescimento %</label>
+                        <input type="number" id="simCrescimento" class="simulador-input"
+                               step="0.1" min="0" max="999" placeholder="20" value="20">
+                    </div>
+                    <div class="col-6 simulador-input-group">
+                        <label for="simCusto" class="mb-1">Custo estimado %</label>
+                        <input type="number" id="simCusto" class="simulador-input"
+                               step="0.1" min="0" max="100" placeholder="30" value="30">
+                    </div>
+                </div>
+
+                <div class="simulador-result mb-2">
+                    <div class="sim-label mb-1">Meta de Receita</div>
+                    <div class="sim-value" id="simMetaReceita">R$ 0,00</div>
+                </div>
+                <div class="simulador-result mb-2">
+                    <div class="sim-label mb-1">Custo Estimado</div>
+                    <div class="sim-value" style="color: #f87171;" id="simCustoTotal">R$ 0,00</div>
+                </div>
+                <div class="simulador-result">
+                    <div class="sim-label mb-1">Lucro Projetado</div>
+                    <div class="sim-value" id="simLucro">R$ 0,00</div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /row rankings+despesas+simulador -->
+
+</div><!-- /main-content -->
+
+<!-- ======================================================= -->
+<!-- MODAL: NOVA DESPESA -->
+<!-- ======================================================= -->
+<div class="modal fade" id="modalNovaDespesa" tabindex="-1" aria-labelledby="modalNovaDespesaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 14px; border: none;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="modalNovaDespesaLabel">
+                    <i class="fa-solid fa-file-invoice-dollar text-danger me-2"></i>Nova Despesa
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form th:action="@{/financeiro/despesas/salvar}" method="post">
+                <input type="hidden" name="periodo" th:value="${periodo}">
+                <input type="hidden" name="referencia" th:value="${#temporals.format(referencia, 'yyyy-MM-dd')}">
+                <div class="modal-body pt-2">
+                    <div class="mb-3">
+                        <label for="despDescricao" class="form-label fw-semibold small">Descrição</label>
+                        <input type="text" id="despDescricao" name="descricao" class="form-control"
+                               placeholder="Ex: Conta de luz, Aluguel..." required style="border-radius:8px;">
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label for="despValor" class="form-label fw-semibold small">Valor (R$)</label>
+                            <input type="number" id="despValor" name="valor" class="form-control"
+                                   step="0.01" min="0.01" placeholder="0,00" required style="border-radius:8px;">
+                        </div>
+                        <div class="col-6">
+                            <label for="despData" class="form-label fw-semibold small">Data</label>
+                            <input type="date" id="despData" name="data" class="form-control"
+                                   th:value="${#temporals.format(referencia, 'yyyy-MM-dd')}" required style="border-radius:8px;">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="despCategoria" class="form-label fw-semibold small">Categoria</label>
+                        <select id="despCategoria" name="categoria" class="form-select" required style="border-radius:8px;">
+                            <option value="Aluguel">🏠 Aluguel</option>
+                            <option value="Material">🛒 Material</option>
+                            <option value="Energia">⚡ Energia</option>
+                            <option value="Outros" selected>📦 Outros</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-laranja rounded-3 px-4 py-2">
+                        <i class="fa-solid fa-save me-1"></i> Salvar Despesa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- SCRIPTS -->
+<!-- ======================================================= -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script th:inline="javascript">
+    /* ====== DADOS DO BACKEND ====== */
+    const graficoLabels  = /*[[${graficoLabels}]]*/ '[]';
+    const graficoValores = /*[[${graficoValores}]]*/ '[]';
+    const servicoLabels  = /*[[${servicoLabels}]]*/ '[]';
+    const servicoValores = /*[[${servicoValores}]]*/ '[]';
+    const receitaBase    = /*[[${receita}]]*/ 0;
+
+    const labelsArr  = JSON.parse(graficoLabels);
+    const valoresArr = JSON.parse(graficoValores).map(Number);
+    const svcLabels  = JSON.parse(servicoLabels);
+    const svcValores = JSON.parse(servicoValores).map(Number);
+
+    /* ====== GRÁFICO DE GANHOS ====== */
+    const ctxGanhos = document.getElementById('graficoGanhos').getContext('2d');
+    new Chart(ctxGanhos, {
+        type: 'bar',
+        data: {
+            labels: labelsArr,
+            datasets: [{
+                label: 'Receita (R$)',
+                data: valoresArr,
+                backgroundColor: 'rgba(255,107,0,0.18)',
+                borderColor: '#ff6b00',
+                borderWidth: 2,
+                borderRadius: 6,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR', {minimumFractionDigits:2})
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11 }, color: '#9ca3af' }
+                },
+                y: {
+                    grid: { color: '#f3f4f6' },
+                    ticks: {
+                        font: { size: 11 },
+                        color: '#9ca3af',
+                        callback: v => 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2})
+                    }
+                }
+            }
+        }
+    });
+
+    /* ====== GRÁFICO DE SERVIÇOS ====== */
+    const CORES = [
+        '#ff6b00','#3b82f6','#22c55e','#8b5cf6','#ef4444',
+        '#f59e0b','#06b6d4','#ec4899','#10b981','#6366f1'
+    ];
+
+    if (svcLabels.length > 0) {
+        const ctxSvc = document.getElementById('graficoServicos').getContext('2d');
+        new Chart(ctxSvc, {
+            type: 'doughnut',
+            data: {
+                labels: svcLabels,
+                datasets: [{
+                    data: svcValores,
+                    backgroundColor: CORES.slice(0, svcLabels.length),
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '65%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ctx.label + ': R$ ' + ctx.parsed.toLocaleString('pt-BR', {minimumFractionDigits:2})
+                        }
+                    }
+                }
+            }
+        });
+
+        // Legenda customizada
+        const legenda = document.getElementById('legendaServicos');
+        svcLabels.forEach((lbl, i) => {
+            const pct = svcValores.reduce((a,b)=>a+b,0) > 0
+                ? ((svcValores[i] / svcValores.reduce((a,b)=>a+b,0))*100).toFixed(1) : 0;
+            legenda.innerHTML += `
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                    <span style="width:10px;height:10px;border-radius:50%;background:${CORES[i]||'#ccc'};flex-shrink:0;"></span>
+                    <span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#374151;"
+                          title="${lbl}">${lbl}</span>
+                    <span style="color:#9ca3af;font-weight:600;">${pct}%</span>
+                </div>`;
+        });
+    } else {
+        document.getElementById('graficoServicos').parentElement.innerHTML =
+            '<div class="empty-state"><i class="fa-regular fa-chart-pie"></i><p>Sem dados de serviços neste período.</p></div>';
+    }
+
+    /* ====== TABS RANKINGS ====== */
+    function showTab(tabId, el) {
+        document.querySelectorAll('.tab-pane-custom').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.custom-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+        el.classList.add('active');
+    }
+
+    /* ====== SIMULADOR FINANCEIRO ====== */
+    function formatBRL(val) {
+        return 'R$ ' + val.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calcularSimulador() {
+        const receita    = parseFloat(document.getElementById('simReceita').value)    || 0;
+        const crescimento = parseFloat(document.getElementById('simCrescimento').value) || 0;
+        const custo      = parseFloat(document.getElementById('simCusto').value)       || 0;
+
+        const metaReceita = receita * (1 + crescimento / 100);
+        const custoTotal  = metaReceita * (custo / 100);
+        const lucro       = metaReceita - custoTotal;
+
+        document.getElementById('simMetaReceita').textContent = formatBRL(metaReceita);
+        document.getElementById('simCustoTotal').textContent  = formatBRL(custoTotal);
+        document.getElementById('simLucro').textContent       = formatBRL(lucro);
+
+        const lucroEl = document.getElementById('simLucro');
+        lucroEl.style.color = lucro >= 0 ? '#ff6b00' : '#f87171';
+    }
+
+    // Inicializa o simulador com dados reais
+    document.getElementById('simReceita').value = receitaBase;
+    calcularSimulador();
+
+    // Atualiza em tempo real
+    ['simReceita','simCrescimento','simCusto'].forEach(id => {
+        document.getElementById(id).addEventListener('input', calcularSimulador);
+    });
+</script>
+
+</body>
+</html>

@@ -22,36 +22,14 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* BARRA LATERAL (Sidebar) */
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            position: fixed;
-            background-color: var(--cinza-escuro);
-            color: white;
-            transition: all 0.3s;
-        }
-
-        .sidebar .nav-link {
-            color: #adb5bd;
-            padding: 12px 20px;
-            margin: 5px 10px;
-            border-radius: 8px;
-            font-weight: 500;
-            text-decoration: none;
-        }
-
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background-color: var(--laranja-calango);
-            color: white;
-        }
+        /* Estilos da sidebar agora vêm do fragmento fragments/sidebar.html */
 
         /* CONTEÚDO PRINCIPAL */
         .main-content {
-            margin-left: 260px;
+            margin-left: 240px;
             padding: 30px;
             min-height: 100vh;
+            transition: margin-left 0.28s ease;
         }
 
         /* CARDS INDICADORES */
@@ -93,50 +71,8 @@
 
 <body>
 
-    <!-- SIDEBAR LATERAL -->
-    <div class="sidebar d-flex flex-column justify-content-between p-3">
-        <div>
-            <!-- Header do Calango -->
-            <div class="text-center my-4">
-                <!-- TAG CORRIGIDA AQUI: Adicionado o fechamento correto da imagem -->
-                <img th:src="@{/images/calango.png}" src="/images/calango.png" alt="Logo" width="50" class="mb-2" />
-                <h5 class="fw-bold m-0" style="color: var(--laranja-calango); letter-spacing: 1px;">CALANGO</h5>
-            </div>
-            <hr class="text-secondary">
-
-            <!-- Links de Navegação -->
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item">
-                    <a href="#" class="nav-link active">
-                        <i class="fa-solid fa-chart-pie me-2"></i> Dashboard
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link">
-                        <i class="fa-solid fa-calendar-check me-2"></i> Atendimentos
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link">
-                        <i class="fa-solid fa-wallet me-2"></i> Finanças
-                    </a>
-                </li>
-                <li>
-                    <a href="#" class="nav-link">
-                        <i class="fa-solid fa-tags me-2"></i> Categorias
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Botão de Sair no final da barra -->
-        <div>
-            <hr class="text-secondary">
-            <a th:href="@{/}" class="nav-link text-danger text-center fw-bold">
-                <i class="fa-solid fa-right-from-bracket me-2"></i> Sair do Sistema
-            </a>
-        </div>
-    </div>
+    <!-- SIDEBAR (fragmento centralizado) -->
+    <div th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></div>
 
     <!-- CONTEÚDO PRINCIPAL -->
     <div class="main-content">

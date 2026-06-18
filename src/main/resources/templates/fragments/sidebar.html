@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    FRAGMENTO SIDEBAR — CALANGO
+    ===================================================
+    Uso: <div th:replace="~{fragments/sidebar :: sidebar('pagina')}"></div>
+    Valores válidos para 'pagina':
+        dashboard | atendimentos | financeiro | servicos
+    ===================================================
+-->
+<div th:fragment="sidebar(paginaAtiva)">
+
+    <!-- Estilos do fragmento (injetados junto com o HTML) -->
+    <style>
+        /* SIDEBAR */
+        #appSidebar {
+            width: 240px;
+            height: 100vh;
+            position: fixed;
+            top: 0; left: 0;
+            background: #212529;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 100;
+            transition: transform 0.28s ease;
+            font-family: 'Segoe UI', 'Inter', Tahoma, sans-serif;
+        }
+
+        .sb-header {
+            text-align: center;
+            padding: 22px 20px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sb-logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #ff6b00;
+            letter-spacing: 2px;
+            margin-top: 6px;
+        }
+
+        .sb-subtitle {
+            font-size: 0.68rem;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .sb-nav {
+            padding: 14px 10px;
+            flex: 1;
+        }
+
+        /* Link base */
+        .sb-link {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px;
+            padding: 10px 14px;
+            margin-bottom: 4px;
+            border-radius: 9px;
+            font-size: 0.87rem;
+            font-weight: 500;
+            color: #9ca3af;
+            text-decoration: none;
+            transition: background 0.18s, color 0.18s;
+        }
+
+        .sb-link i {
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .sb-link:hover {
+            background: rgba(255,107,0,0.12);
+            color: #ff6b00;
+            text-decoration: none;
+        }
+
+        /* Link ativo */
+        .sb-link.sb-active {
+            background: #ff6b00 !important;
+            color: #fff !important;
+            font-weight: 600;
+        }
+
+        .sb-link.sb-active:hover {
+            background: #e05e00 !important;
+            color: #fff !important;
+        }
+
+        /* Footer / Sair */
+        .sb-footer {
+            padding: 12px 10px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sb-link-sair {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 9px;
+            font-size: 0.87rem;
+            font-weight: 500;
+            color: #ef4444;
+            text-decoration: none;
+            transition: background 0.18s;
+        }
+
+        .sb-link-sair i {
+            width: 16px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sb-link-sair:hover {
+            background: rgba(239,68,68,0.12);
+            color: #ef4444;
+            text-decoration: none;
+        }
+
+        /* Botão toggle — aba discreta na borda direita da sidebar */
+        #btnToggleSidebar {
+            position: fixed;
+            top: 50%;
+            left: 240px; /* borda direita da sidebar */
+            transform: translateY(-50%);
+            z-index: 200;
+            background: #2d3238;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-left: none;
+            color: #9ca3af;
+            width: 16px;
+            height: 48px;
+            border-radius: 0 6px 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 2px 0 6px rgba(0,0,0,0.18);
+            transition: left 0.28s ease, background 0.18s, color 0.18s;
+            font-size: 0.6rem;
+            padding: 0;
+        }
+
+        #btnToggleSidebar:hover {
+            background: #374048;
+            color: #e5e7eb;
+        }
+
+        /* Overlay mobile */
+        #sidebarOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.45);
+            z-index: 99;
+        }
+
+        /* Conteúdo principal reage ao toggle */
+        .main-content {
+            transition: margin-left 0.28s ease !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+
+    <!-- Overlay (mobile) -->
+    <div id="sidebarOverlay" onclick="fecharSidebar()"></div>
+
+    <!-- Botão toggle (aba na borda da sidebar) -->
+    <button id="btnToggleSidebar" onclick="toggleSidebar()" title="Fechar menu">
+        <i id="iconToggle" class="fa-solid fa-chevron-left"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="appSidebar">
+
+        <div>
+            <!-- Header -->
+            <div class="sb-header">
+                <img th:src="@{/images/calango.png}" src="/images/calango.png"
+                     alt="Logo" width="40"
+                     style="display:block; margin: 0 auto 6px;">
+                <div class="sb-logo">CALANGO</div>
+                <div class="sb-subtitle">Sistema de Gestão</div>
+            </div>
+
+            <!-- Navegação -->
+            <nav class="sb-nav">
+
+                <a th:href="@{/dashboard}"
+                   class="sb-link"
+                   th:classappend="${paginaAtiva == 'dashboard'} ? ' sb-active'">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a th:href="@{/atendimentos}"
+                   class="sb-link"
+                   th:classappend="${paginaAtiva == 'atendimentos'} ? ' sb-active'">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Atendimentos</span>
+                </a>
+
+                <a th:href="@{/financeiro}"
+                   class="sb-link"
+                   th:classappend="${paginaAtiva == 'financeiro'} ? ' sb-active'">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>Financeiro</span>
+                </a>
+
+                <a th:href="@{/servicos}"
+                   class="sb-link"
+                   th:classappend="${paginaAtiva == 'servicos'} ? ' sb-active'">
+                    <i class="fa-solid fa-tags"></i>
+                    <span>Tabela de Preços</span>
+                </a>
+
+            </nav>
+        </div>
+
+        <!-- Footer -->
+        <div class="sb-footer">
+            <a th:href="@{/}" class="sb-link-sair">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Sair do Sistema</span>
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Script do toggle -->
+    <script>
+        (function () {
+            var KEY      = 'calango_sidebar_collapsed';
+            var SB_W     = 240;
+            var sidebar  = document.getElementById('appSidebar');
+            var btn      = document.getElementById('btnToggleSidebar');
+            var icon     = document.getElementById('iconToggle');
+            var overlay  = document.getElementById('sidebarOverlay');
+
+            function mobile() { return window.innerWidth <= 768; }
+
+            function apply(collapsed, animate) {
+                var dur = animate ? '0.28s' : '0s';
+                sidebar.style.transition = 'transform ' + dur + ' ease';
+                btn.style.transition     = 'left ' + dur + ' ease';
+
+                if (collapsed) {
+                    sidebar.style.transform = 'translateX(-' + SB_W + 'px)';
+                    btn.style.left          = '0px';
+                    btn.title               = 'Abrir menu';
+                    overlay.style.display   = 'none';
+                    icon.className          = 'fa-solid fa-chevron-right';
+                    setMain('0', animate);
+                } else {
+                    sidebar.style.transform = 'translateX(0)';
+                    btn.style.left          = SB_W + 'px';
+                    btn.title               = 'Fechar menu';
+                    icon.className          = 'fa-solid fa-chevron-left';
+                    if (mobile()) {
+                        overlay.style.display = 'block';
+                        setMain('0', animate);
+                    } else {
+                        overlay.style.display = 'none';
+                        setMain(SB_W + 'px', animate);
+                    }
+                }
+            }
+
+            function setMain(ml, animate) {
+                document.querySelectorAll('.main-content').forEach(function (el) {
+                    el.style.marginLeft = ml;
+                });
+            }
+
+            // Estado inicial
+            var savedCollapsed = localStorage.getItem(KEY) === 'true';
+            var startCollapsed = mobile() ? true : savedCollapsed;
+            apply(startCollapsed, false);
+
+            // API global
+            window.toggleSidebar = function () {
+                var isCollapsed = sidebar.style.transform.indexOf('-' + SB_W) !== -1;
+                var next = !isCollapsed;
+                apply(next, true);
+                localStorage.setItem(KEY, String(next));
+            };
+
+            window.fecharSidebar = function () {
+                apply(true, true);
+                localStorage.setItem(KEY, 'true');
+            };
+
+            window.addEventListener('resize', function () {
+                var c = mobile() ? true : (localStorage.getItem(KEY) === 'true');
+                apply(c, false);
+            });
+        })();
+    </script>
+
+</div><!-- /fragment -->
+
+</body>
+</html>

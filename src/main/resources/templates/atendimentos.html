@@ -21,34 +21,13 @@
             overflow-x: hidden;
         }
 
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            position: fixed;
-            background-color: var(--cinza-escuro);
-            color: white;
-            z-index: 100;
-        }
-
-        .sidebar .nav-link {
-            color: #adb5bd;
-            padding: 12px 20px;
-            margin: 5px 10px;
-            border-radius: 8px;
-            font-weight: 500;
-            text-decoration: none;
-        }
-
-        .sidebar .nav-link:hover,
-        .sidebar .nav-link.active {
-            background-color: var(--laranja-calango);
-            color: white;
-        }
+        /* Estilos da sidebar agora vêm do fragmento fragments/sidebar.html */
 
         .main-content {
-            margin-left: 260px;
+            margin-left: 240px;
             padding: 30px;
             min-height: 100vh;
+            transition: margin-left 0.28s ease;
         }
 
         .lista-scroll-atendimentos {
@@ -145,27 +124,7 @@
 
 <body>
 
-    <div class="sidebar d-flex flex-column justify-content-between p-3">
-        <div>
-            <div class="text-center my-4">
-                <img th:src="@{/images/calango.png}" src="/images/calango.png" alt="Logo" width="50" class="mb-2" />
-                <h5 class="fw-bold m-0" style="color: var(--laranja-calango); letter-spacing: 1px;">CALANGO</h5>
-            </div>
-            <hr class="text-secondary">
-            <ul class="nav nav-pills flex-column mb-auto">
-                <li><a th:href="@{/dashboard}" href="#" class="nav-link"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a></li>
-                <li><a href="#" class="nav-link active"><i class="fa-solid fa-calendar-check me-2"></i> Atendimentos</a></li>
-                <li><a href="#" class="nav-link"><i class="fa-solid fa-wallet me-2"></i> Finanças</a></li>
-                <li><a href="#" class="nav-link"><i class="fa-solid fa-tags me-2"></i> Categorias</a></li>
-            </ul>
-        </div>
-        <div>
-            <hr class="text-secondary">
-            <a th:href="@{/}" class="nav-link text-danger text-center fw-bold">
-                <i class="fa-solid fa-right-from-bracket me-2"></i> Sair do Sistema
-            </a>
-        </div>
-    </div>
+    <div th:replace="~{fragments/sidebar :: sidebar('atendimentos')}"></div>
 
     <div class="main-content">
 
@@ -182,6 +141,13 @@
                         <button type="button" class="btn btn-tabela-precos btn-sm px-3"
                             data-bs-toggle="modal" data-bs-target="#modalTabelaPrecos">
                             <i class="fa-solid fa-tags me-2"></i> Tabela de Preços
+                        </button>
+                        
+                        <!-- Lista de Profissionais -->
+                        <button type="button" class="btn btn-sm px-3 border border-secondary text-secondary fw-bold"
+                            style="background-color: #f8f9fa;"
+                            data-bs-toggle="modal" data-bs-target="#modalProfissionais">
+                            <i class="fa-solid fa-users me-2"></i> Profissionais
                         </button>
                         
                         <!-- Busca por Data -->
@@ -209,13 +175,17 @@
         <div class="card shadow-sm border-0 p-3">
             <ul class="nav nav-tabs mb-3" id="atendimentosTabs" role="tablist" style="border-bottom: 2px solid #dee2e6;">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link nav-link-calango active" id="hoje-tab" data-bs-toggle="tab"
+                    <button class="nav-link nav-link-calango" 
+                        th:classappend="${profissionalFiltro == null or profissionalFiltro.isEmpty() ? 'active' : ''}"
+                        id="hoje-tab" data-bs-toggle="tab"
                         data-bs-target="#hoje" type="button" role="tab">
                         <i class="fa-solid fa-list-check me-2 text-primary"></i>Registros da Data Selecionada
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link nav-link-calango text-muted" id="semana-tab" data-bs-toggle="tab"
+                    <button class="nav-link nav-link-calango" 
+                        th:classappend="${profissionalFiltro != null and !profissionalFiltro.isEmpty() ? 'active text-dark' : 'text-muted'}"
+                        id="semana-tab" data-bs-toggle="tab"
                         data-bs-target="#semana" type="button" role="tab">
                         <i class="fa-solid fa-clock-rotate-left me-2 text-success"></i>Sobre o Histórico
                     </button>
@@ -224,7 +194,9 @@
 
             <div class="tab-content" id="atendimentosTabsContent">
 
-                <div class="tab-pane fade show active" id="hoje" role="tabpanel">
+                <div class="tab-pane fade" 
+                     th:classappend="${profissionalFiltro == null or profissionalFiltro.isEmpty() ? 'show active' : ''}" 
+                     id="hoje" role="tabpanel">
                     <div class="lista-scroll-atendimentos" id="listaAtendimentosContainer">
 
                         <div th:if="${#lists.isEmpty(atendimentos)}" class="text-center text-muted my-5">
@@ -246,6 +218,12 @@
 
                             <div class="col-md-3">
                                 <p class="text-muted small m-0 text-truncate" th:text="${atend.descricao}">Servicos</p>
+                                <span th:if="${atend.profissional != null and !atend.profissional.isEmpty()}"
+                                      class="badge rounded-pill mt-1"
+                                      style="background:#f0f4ff; color:#3b82f6; font-size:0.7rem; font-weight:600;">
+                                    <i class="fa-solid fa-user-tie me-1"></i>
+                                    <span th:text="${atend.profissional}"></span>
+                                </span>
                             </div>
 
                             <div class="col-md-2 text-md-center">
@@ -279,7 +257,8 @@
                                              data-data=${atend.dataAtendimento},
                                              data-hora=${atend.horaAtendimento},
                                              data-origem=${atend.origem},
-                                             data-valor=${atend.valor != null ? atend.valor : ''}"
+                                             data-valor=${atend.valor != null ? atend.valor : ''},
+                                             data-profissional=${atend.profissional != null ? atend.profissional : ''}"
                                     onclick="abrirEditarModalFromBtn(this)">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
@@ -313,7 +292,9 @@
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="semana" role="tabpanel">
+                <div class="tab-pane fade" 
+                     th:classappend="${profissionalFiltro != null and !profissionalFiltro.isEmpty() ? 'show active' : ''}" 
+                     id="semana" role="tabpanel">
                     <!-- Barra de Exportação de Relatórios -->
                     <div class="card border-0 bg-light rounded-3 p-3 mb-3">
                         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
@@ -321,20 +302,36 @@
                                 <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-file-pdf text-danger me-2"></i>Exportar Relatórios PDF</h6>
                                 <p class="text-muted small mb-0">Selecione o período desejado com base na data selecionada no calendário.</p>
                             </div>
-                            <div class="d-flex flex-wrap gap-2">
-                                <a th:href="@{/atendimentos/relatorio(tipo='diario', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''})}" 
+                            
+                            <!-- Filtro de Profissional na aba Histórico -->
+                            <div>
+                                <form th:action="@{/atendimentos}" method="GET" class="d-flex align-items-center gap-2 m-0">
+                                    <input type="hidden" name="dataFiltro" th:value="${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''}">
+                                    <label class="small fw-bold text-muted mb-0"><i class="fa-solid fa-filter me-1"></i> Profissional:</label>
+                                    <select name="profissionalFiltro" class="form-select form-select-sm" style="width:160px; font-size:0.8rem;" onchange="this.form.submit()">
+                                        <option value="">Todos</option>
+                                        <option th:each="prof : ${profissionais}" 
+                                                th:value="${prof.nome}" 
+                                                th:text="${prof.nome}"
+                                                th:selected="${profissionalFiltro != null and profissionalFiltro == prof.nome}"></option>
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 w-100 mt-2 border-top pt-3">
+                                <a th:href="@{/atendimentos/relatorio(tipo='diario', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''}, profissional=${profissionalFiltro})}" 
                                    class="btn btn-outline-danger btn-sm fw-bold px-3" style="border-radius: 8px;">
                                     <i class="fa-solid fa-download me-1"></i> Diário
                                 </a>
-                                <a th:href="@{/atendimentos/relatorio(tipo='semanal', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''})}" 
+                                <a th:href="@{/atendimentos/relatorio(tipo='semanal', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''}, profissional=${profissionalFiltro})}" 
                                    class="btn btn-outline-danger btn-sm fw-bold px-3" style="border-radius: 8px;">
                                     <i class="fa-solid fa-download me-1"></i> Semanal
                                 </a>
-                                <a th:href="@{/atendimentos/relatorio(tipo='mensal', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''})}" 
+                                <a th:href="@{/atendimentos/relatorio(tipo='mensal', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''}, profissional=${profissionalFiltro})}" 
                                    class="btn btn-outline-danger btn-sm fw-bold px-3" style="border-radius: 8px;">
                                     <i class="fa-solid fa-download me-1"></i> Mensal
                                 </a>
-                                <a th:href="@{/atendimentos/relatorio(tipo='anual', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''})}" 
+                                <a th:href="@{/atendimentos/relatorio(tipo='anual', data=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''}, profissional=${profissionalFiltro})}" 
                                    class="btn btn-outline-danger btn-sm fw-bold px-3" style="border-radius: 8px;">
                                     <i class="fa-solid fa-download me-1"></i> Anual
                                 </a>
@@ -479,6 +476,59 @@
         </div>
     </div>
 
+    <!-- ===== MODAL: LISTA DE PROFISSIONAIS ===== -->
+    <div class="modal fade" id="modalProfissionais" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">Lista de Profissionais</h5>
+                        <p class="text-muted small m-0">Cadastre os profissionais para os atendimentos.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form th:action="@{/profissionais/salvar}" method="POST" class="mb-4 bg-light p-3 rounded border">
+                        <input type="hidden" name="dataBusca" th:value="${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''}">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-8">
+                                <label class="small fw-bold text-muted mb-1">Nome do Profissional</label>
+                                <input type="text" name="nome" class="form-control form-control-sm" placeholder="Ex: Lucas" required autocomplete="off">
+                            </div>
+                            <div class="col-4">
+                                <button type="submit" class="btn btn-dark btn-sm w-100">
+                                    <i class="fa-solid fa-plus me-1"></i>Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div>
+                        <p class="text-center text-muted small py-3" th:if="${profissionais == null or profissionais.isEmpty()}">
+                            <i class="fa-solid fa-circle-info me-1"></i>Nenhum profissional cadastrado.
+                        </p>
+                        
+                        <div class="list-group list-group-flush" th:if="${profissionais != null and !profissionais.isEmpty()}">
+                            <div th:each="prof : ${profissionais}" class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <div class="fw-bold text-dark">
+                                    <i class="fa-solid fa-user-tie text-muted me-2"></i><span th:text="${prof.nome}"></span>
+                                </div>
+                                <a th:href="@{/profissionais/deletar/{id}(id=${prof.id}, dataBusca=${dataSelecionada != null ? #temporals.format(dataSelecionada, 'yyyy-MM-dd') : ''})}" 
+                                   class="btn btn-sm btn-light text-danger py-0 px-2" title="Remover"
+                                   onclick="return confirm('Tem certeza que deseja remover este profissional?');">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light btn-sm fw-bold" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== MODAL: NOVO ATENDIMENTO ===== -->
     <div class="modal fade" id="modalNovoAtendimento" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -539,6 +589,17 @@
                                 <label class="form-label small fw-bold">Horário</label>
                                 <input type="time" name="hora" id="novaHora" class="form-control" required>
                             </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label small fw-bold">
+                                <i class="fa-solid fa-user-tie me-1" style="color:#ff6b00;"></i>
+                                Profissional
+                            </label>
+                            <select name="profissional" id="novoProfissional" class="form-select" required>
+                                <option value="" disabled selected>Selecione um profissional cadastrado</option>
+                                <option th:each="prof : ${profissionais}" th:value="${prof.nome}" th:text="${prof.nome}"></option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -611,6 +672,17 @@
                                 <label class="form-label small fw-bold">Horário</label>
                                 <input type="time" id="editHora" name="hora" class="form-control" required>
                             </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label small fw-bold">
+                                <i class="fa-solid fa-user-tie me-1" style="color:#ff6b00;"></i>
+                                Profissional
+                            </label>
+                            <select name="profissional" id="editProfissional" class="form-select" required>
+                                <option value="" disabled selected>Selecione um profissional cadastrado</option>
+                                <option th:each="prof : ${profissionais}" th:value="${prof.nome}" th:text="${prof.nome}"></option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -1082,17 +1154,19 @@
         // MODAL EDITAR: popular com dados existentes
         // ============================================================
         function abrirEditarModalFromBtn(btn) {
-            const id         = btn.dataset.id;
-            const cliente    = btn.dataset.cliente;
-            const descricao  = btn.dataset.descricao;
-            const data       = btn.dataset.data;
-            const hora       = btn.dataset.hora;
-            const valorTotal = btn.dataset.valor;
+            const id          = btn.dataset.id;
+            const cliente     = btn.dataset.cliente;
+            const descricao   = btn.dataset.descricao;
+            const data        = btn.dataset.data;
+            const hora        = btn.dataset.hora;
+            const valorTotal  = btn.dataset.valor;
+            const profissional = btn.dataset.profissional || '';
 
-            document.getElementById('editId').value      = id;
-            document.getElementById('editCliente').value = cliente;
-            document.getElementById('editData').value    = data;
-            document.getElementById('editHora').value    = hora;
+            document.getElementById('editId').value           = id;
+            document.getElementById('editCliente').value      = cliente;
+            document.getElementById('editData').value         = data;
+            document.getElementById('editHora').value         = hora;
+            document.getElementById('editProfissional').value = profissional;
 
             // Reconstroi lista de itens a partir da descricao salva
             itensEditar = [];

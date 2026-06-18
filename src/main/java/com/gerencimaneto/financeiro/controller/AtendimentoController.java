@@ -8,6 +8,8 @@ import com.gerencimaneto.financeiro.repository.AtendimentoRepository;
 import com.gerencimaneto.financeiro.service.AtendimentoService;
 import com.gerencimaneto.financeiro.service.ServicoTabelaService;
 import com.gerencimaneto.financeiro.service.RelatorioPdfService;
+import com.gerencimaneto.financeiro.repository.ProfissionalRepository;
+import com.gerencimaneto.financeiro.model.Profissional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.ui.Model;
@@ -37,6 +39,9 @@ public class AtendimentoController {
     @Autowired
     private RelatorioPdfService relatorioPdfService;
 
+    @Autowired
+    private ProfissionalRepository profissionalRepository;
+
     /**
      * Carrega a página filtrando por data (Histórico ou Hoje)
      * Endpoint aceita: /atendimentos?dataFiltro=2026-06-04
@@ -44,6 +49,7 @@ public class AtendimentoController {
     @GetMapping
     public String exibirAtendimentos(
             @RequestParam(value = "dataFiltro", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFiltro,
+            @RequestParam(value = "profissionalFiltro", required = false) String profissionalFiltro,
             Model model) {
 
         // Se a data não foi enviada pelo calendário, usamos a data de hoje por padrão
@@ -55,12 +61,19 @@ public class AtendimentoController {
 
         // Filtra atendimentos pendentes (para a aba Hoje) e realizados (para a aba Histórico)
         List<Atendimento> atendimentosPendentes = listaDia.stream().filter(a -> !a.isRealizado()).toList();
-        List<Atendimento> atendimentosRealizados = listaDia.stream().filter(a -> a.isRealizado()).toList();
+        
+        List<Atendimento> atendimentosRealizados = listaDia.stream()
+            .filter(Atendimento::isRealizado)
+            .filter(a -> profissionalFiltro == null || profissionalFiltro.isBlank() || 
+                        (a.getProfissional() != null && a.getProfissional().equalsIgnoreCase(profissionalFiltro)))
+            .toList();
 
         // Envia os dados para o HTML
         model.addAttribute("atendimentos", atendimentosPendentes);
         model.addAttribute("atendimentosRealizados", atendimentosRealizados);
         model.addAttribute("atendimentosSemana", listaSemana);
+        model.addAttribute("profissionais", profissionalRepository.findAllByOrderByNomeAsc());
+        model.addAttribute("profissionalFiltro", profissionalFiltro);
 
         // Devolvemos a data selecionada para manter o input do calendário preenchido
         // com o dia que foi buscado
@@ -74,7 +87,8 @@ public class AtendimentoController {
             @RequestParam("descricao") String descricao,
             @RequestParam(value = "valor", required = false) BigDecimal valor,
             @RequestParam("data") String data,
-            @RequestParam("hora") String hora) {
+            @RequestParam("hora") String hora,
+            @RequestParam(value = "profissional", required = true) String profissional) {
 
         Atendimento atendimento = new Atendimento();
         atendimento.setCliente(cliente);
@@ -83,6 +97,7 @@ public class AtendimentoController {
         atendimento.setDataAtendimento(LocalDate.parse(data));
         atendimento.setHoraAtendimento(LocalTime.parse(hora));
         atendimento.setOrigem("MANUAL");
+        atendimento.setProfissional(profissional != null && !profissional.isBlank() ? profissional.trim() : null);
 
         service.salvarManual(atendimento);
 
@@ -96,14 +111,17 @@ public class AtendimentoController {
             @RequestParam("descricao") String descricao,
             @RequestParam(value = "valor", required = false) BigDecimal valor,
             @RequestParam("data") String data,
-            @RequestParam("hora") String hora) {
+            @RequestParam("hora") String hora,
+            @RequestParam(value = "profissional", required = true) String profissional) {
 
+        final String prof = (profissional != null && !profissional.isBlank()) ? profissional.trim() : null;
         service.buscarPorId(id).ifPresent(atendimento -> {
             atendimento.setCliente(cliente);
             atendimento.setDescricao(descricao);
             atendimento.setValor(valor);
             atendimento.setDataAtendimento(LocalDate.parse(data));
             atendimento.setHoraAtendimento(LocalTime.parse(hora));
+            atendimento.setProfissional(prof);
             service.salvarManual(atendimento);
         });
 
@@ -183,6 +201,7 @@ public class AtendimentoController {
     public void baixarRelatorio(
             @RequestParam("tipo") String tipo,
             @RequestParam(value = "data", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+            @RequestParam(value = "profissional", required = false) String profissional,
             jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
 
         if (data == null) {
@@ -215,6 +234,13 @@ public class AtendimentoController {
                 atendimentos = repository.findByDataAtendimentoAndRealizadoTrueOrderByHoraAtendimentoAsc(data);
                 tituloPeriodo = "Diário (" + data.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")";
                 break;
+        }
+
+        if (profissional != null && !profissional.isBlank()) {
+            atendimentos = atendimentos.stream()
+                    .filter(a -> a.getProfissional() != null && a.getProfissional().equalsIgnoreCase(profissional))
+                    .toList();
+            tituloPeriodo += " (Profissional: " + profissional + ")";
         }
 
         byte[] pdfBytes = relatorioPdfService.gerarRelatorioRealizados(atendimentos, tituloPeriodo);

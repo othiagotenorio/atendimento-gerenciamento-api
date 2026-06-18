@@ -77,12 +77,12 @@ public class RelatorioPdfService {
             document.add(tableResumo);
 
             // Tabela principal
-            PdfPTable table = new PdfPTable(5);
+            PdfPTable table = new PdfPTable(6);
             table.setWidthPercentage(100);
-            table.setWidths(new float[]{2.5f, 3f, 1.5f, 1.2f, 1.8f}); // colunas: cliente, servicos, data, hora, valor
+            table.setWidths(new float[]{2.0f, 2.5f, 1.8f, 1.5f, 1.2f, 1.8f}); // colunas: cliente, servicos, prof, data, hora, valor
 
             // Cabeçalho da tabela
-            String[] headers = {"Cliente", "Serviço(s)", "Data", "Hora", "Valor"};
+            String[] headers = {"Cliente", "Serviço(s)", "Profissional", "Data", "Hora", "Valor"};
             Color orangeCalango = new Color(255, 107, 0);
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, fontHeader));
@@ -108,6 +108,12 @@ public class RelatorioPdfService {
                 cDesc.setBackgroundColor(bg);
                 cDesc.setPadding(6);
                 table.addCell(cDesc);
+
+                String prof = a.getProfissional() != null && !a.getProfissional().isBlank() ? a.getProfissional() : "-";
+                PdfPCell cProf = new PdfPCell(new Phrase(prof, fontNormal));
+                cProf.setBackgroundColor(bg);
+                cProf.setPadding(6);
+                table.addCell(cProf);
 
                 PdfPCell cData = new PdfPCell(new Phrase(a.getDataAtendimento().format(dateFormatter), fontNormal));
                 cData.setBackgroundColor(bg);

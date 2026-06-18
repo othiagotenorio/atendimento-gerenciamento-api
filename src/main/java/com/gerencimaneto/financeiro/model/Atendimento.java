@@ -34,6 +34,9 @@ public class Atendimento {
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean realizado = false;
 
+    @Column
+    private String profissional; // Nome do profissional que realizou o atendimento
+
     public Atendimento() {
     }
 
@@ -113,5 +116,13 @@ public class Atendimento {
 
     public void setRealizado(boolean realizado) {
         this.realizado = realizado;
+    }
+
+    public String getProfissional() {
+        return profissional;
+    }
+
+    public void setProfissional(String profissional) {
+        this.profissional = profissional;
     }
 }
