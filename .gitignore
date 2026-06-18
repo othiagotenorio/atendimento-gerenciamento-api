@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Arquivos Sensíveis ###
+src/main/resources/application.properties
+src/main/resources/*.sql

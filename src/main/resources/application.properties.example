@@ -1,8 +1,8 @@
 # URL de conexão: Altere 'localhost:5432' se o seu banco estiver em outra porta,
 # e altere 'db_calango' para o nome do banco de dados que você criou no Postgres.
 spring.datasource.url=jdbc:postgresql://localhost:5432/db_calango
-spring.datasource.username=postgres
-spring.datasource.password=1234
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
 spring.datasource.driver-class-name=org.postgresql.Driver
 
 # Configurações do Hibernate / JPA
