@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro - Calango</title>
+    <title>Financeiro - Skink</title>
     <meta name="description" content="Painel financeiro completo com receitas, despesas, rankings e simulador de metas.">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,10 +15,10 @@
 
     <style>
         :root {
-            --laranja: #ff6b00;
-            --laranja-soft: #fff3e8;
+            --laranja: #FCA311;
+            --laranja-soft: rgba(252, 163, 17, 0.1);
             --cinza-escuro: #1a1d23;
-            --cinza-sidebar: #212529;
+            --cinza-sidebar: #14213D;
             --cinza-corpo: #f0f2f7;
             --verde: #22c55e;
             --verde-soft: #dcfce7;
@@ -375,7 +375,7 @@
             transition: background 0.18s;
         }
 
-        .btn-laranja:hover { background: #e05e00; color: white; }
+        .btn-laranja:hover { background: #d98500; color: white; }
 
         .section-label {
             font-size: 0.7rem;
@@ -811,8 +811,8 @@
             datasets: [{
                 label: 'Receita (R$)',
                 data: valoresArr,
-                backgroundColor: 'rgba(255,107,0,0.18)',
-                borderColor: '#ff6b00',
+                backgroundColor: 'rgba(252,163,17,0.18)',
+                borderColor: '#FCA311',
                 borderWidth: 2,
                 borderRadius: 6,
                 fill: true,
@@ -849,7 +849,7 @@
 
     /* ====== GRÁFICO DE SERVIÇOS ====== */
     const CORES = [
-        '#ff6b00','#3b82f6','#22c55e','#8b5cf6','#ef4444',
+        '#FCA311','#14213D','#22c55e','#8b5cf6','#ef4444',
         '#f59e0b','#06b6d4','#ec4899','#10b981','#6366f1'
     ];
 
@@ -926,7 +926,7 @@
         document.getElementById('simLucro').textContent       = formatBRL(lucro);
 
         const lucroEl = document.getElementById('simLucro');
-        lucroEl.style.color = lucro >= 0 ? '#ff6b00' : '#f87171';
+        lucroEl.style.color = lucro >= 0 ? '#FCA311' : '#f87171';
     }
 
     // Inicializa o simulador com dados reais

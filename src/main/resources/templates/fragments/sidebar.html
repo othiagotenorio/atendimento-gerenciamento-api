@@ -3,7 +3,7 @@
 <body>
 
 <!--
-    FRAGMENTO SIDEBAR — CALANGO
+    FRAGMENTO SIDEBAR — SKINK
     ===================================================
     Uso: <div th:replace="~{fragments/sidebar :: sidebar('pagina')}"></div>
     Valores válidos para 'pagina':
@@ -14,13 +14,15 @@
 
     <!-- Estilos do fragmento (injetados junto com o HTML) -->
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
+
         /* SIDEBAR */
         #appSidebar {
             width: 240px;
             height: 100vh;
             position: fixed;
             top: 0; left: 0;
-            background: #212529;
+            background: #14213D;
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -37,16 +39,17 @@
         }
 
         .sb-logo {
+            font-family: 'Montserrat', sans-serif;
             font-size: 1.2rem;
             font-weight: 800;
-            color: #ff6b00;
+            color: #FCA311;
             letter-spacing: 2px;
             margin-top: 6px;
         }
 
         .sb-subtitle {
             font-size: 0.68rem;
-            color: #6b7280;
+            color: #E5E5E5;
             margin-top: 2px;
         }
 
@@ -78,20 +81,20 @@
         }
 
         .sb-link:hover {
-            background: rgba(255,107,0,0.12);
-            color: #ff6b00;
+            background: rgba(252,163,17,0.12);
+            color: #FCA311;
             text-decoration: none;
         }
 
         /* Link ativo */
         .sb-link.sb-active {
-            background: #ff6b00 !important;
+            background: #FCA311 !important;
             color: #fff !important;
             font-weight: 600;
         }
 
         .sb-link.sb-active:hover {
-            background: #e05e00 !important;
+            background: #e08d00 !important;
             color: #fff !important;
         }
 
@@ -126,18 +129,18 @@
             text-decoration: none;
         }
 
-        /* Link Admin — cor roxa/índigo para diferenciação visual */
+        /* Link Admin — cor dourada para diferenciação visual */
         .sb-link.sb-link-admin {
-            color: #a78bfa;
+            color: #fcc772;
         }
 
         .sb-link.sb-link-admin:hover {
-            background: rgba(139,92,246,0.15);
-            color: #8b5cf6;
+            background: rgba(252,163,17,0.15);
+            color: #FCA311;
         }
 
         .sb-link.sb-link-admin.sb-active {
-            background: #7c3aed !important;
+            background: #FCA311 !important;
             color: #fff !important;
         }
 
@@ -209,7 +212,7 @@
                 <img th:src="@{/images/calango.png}" src="/images/calango.png"
                      alt="Logo" width="40"
                      style="display:block; margin: 0 auto 6px;">
-                <div class="sb-logo">CALANGO</div>
+                <div class="sb-logo">SKINK</div>
                 <div class="sb-subtitle">Sistema de Gestão</div>
             </div>
 
@@ -253,6 +256,15 @@
                     <span>Administração</span>
                 </a>
 
+                <!-- Item Solicitações — visível apenas para ADMIN -->
+                <a th:if="${session.isAdmin != null}"
+                   th:href="@{/admin/solicitacoes}"
+                   class="sb-link sb-link-admin"
+                   th:classappend="${paginaAtiva == 'solicitacoes'} ? ' sb-active'">
+                    <i class="fa-solid fa-file-circle-check"></i>
+                    <span>Solicitações</span>
+                </a>
+
             </nav>
         </div>
 
@@ -269,7 +281,7 @@
     <!-- Script do toggle -->
     <script>
         (function () {
-            var KEY      = 'calango_sidebar_collapsed';
+            var KEY      = 'skink_sidebar_collapsed';
             var SB_W     = 240;
             var sidebar  = document.getElementById('appSidebar');
             var btn      = document.getElementById('btnToggleSidebar');

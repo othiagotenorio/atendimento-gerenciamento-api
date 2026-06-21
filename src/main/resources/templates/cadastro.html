@@ -4,135 +4,563 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro - Calango Gerenciamento Financeiro</title>
+    <title>Cadastre seu Negócio - Skink</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --laranja-calango: #ff6b00;
-            --cinza-escuro: #212529;
+            --laranja: #FCA311;
+            --laranja-dark: #14213D;
+            --laranja-light: rgba(252, 163, 17, 0.1);
+            --cinza-bg: #f5f6f8;
+            --cinza-borda: #cbd5e1;
+            --cinza-texto: #6b7280;
+            --preto: #000000;
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background-color: #f8f9fa;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: var(--cinza-bg);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        .cadastro-container {
-            max-width: 400px;
-            width: 100%;
+        /* ── HERO HEADER ── */
+        .hero-header {
+            background: linear-gradient(135deg, #14213D 0%, #FCA311 100%);
+            color: white;
+            padding: 48px 24px 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        .hero-header::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 250px; height: 250px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
         }
 
-        .mascote-img {
-            max-width: 100px;
-            height: auto;
+        .hero-header::after {
+            content: '';
+            position: absolute;
+            bottom: -80px; left: -40px;
+            width: 300px; height: 300px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+
+        .hero-logo {
+            width: 72px;
+            height: 72px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-logo img {
+            width: 50px;
+            height: 50px;
             object-fit: contain;
         }
 
-        /* Cores do Calango para os botões e links */
-        .btn-calango {
-            background-color: var(--laranja-calango);
+        .hero-badge {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.35);
+            color: white;
+            border-radius: 20px;
+            padding: 4px 16px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 14px;
+        }
+
+        .hero-header h1 {
+            font-size: clamp(1.6rem, 4vw, 2.3rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .hero-header p {
+            font-size: 1rem;
+            opacity: 0.88;
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ── CARD PRINCIPAL ── */
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+            padding: 36px 40px;
+            max-width: 560px;
+            width: calc(100% - 32px);
+            margin: -48px auto 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ── TRUST BADGES ── */
+        .trust-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 28px;
+        }
+
+        .trust-badge {
+            background: var(--laranja-light);
+            color: var(--laranja-dark);
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* ── FORM ── */
+        .form-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--preto);
+            margin-bottom: 6px;
+        }
+
+        .input-group-text {
+            background: white;
+            border-right: none;
+            color: var(--cinza-texto);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            border-left: none;
+            border-color: var(--cinza-borda);
+            font-size: 0.92rem;
+            padding: 10px 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--laranja);
+            box-shadow: 0 0 0 3px rgba(255,107,0,0.12);
+            outline: none;
+        }
+
+        .input-group-text,
+        .form-control {
+            border-color: var(--cinza-borda);
+        }
+
+        .input-group:focus-within .input-group-text {
+            border-color: var(--laranja);
+        }
+
+        .input-group:focus-within .form-control {
+            border-color: var(--laranja);
+        }
+
+        /* ── BOTÃO ── */
+        .btn-enviar {
+            background: linear-gradient(135deg, var(--laranja) 0%, var(--laranja-dark) 100%);
+            color: white;
             border: none;
-            color: white;
-            font-weight: bold;
+            border-radius: 12px;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
         }
 
-        .btn-calango:hover {
-            background-color: #e05e00;
+        .btn-enviar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255,107,0,0.35);
+        }
+
+        .btn-enviar:active {
+            transform: translateY(0);
+        }
+
+        /* ── STEPS ── */
+        .steps-row {
+            display: flex;
+            gap: 0;
+            margin: 24px 0 28px;
+            position: relative;
+        }
+
+        .steps-row::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: calc(16.66%);
+            right: calc(16.66%);
+            height: 2px;
+            background: #e9ecef;
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .step.active .step-circle {
+            background: var(--laranja);
             color: white;
         }
 
-        .text-calango {
-            color: var(--laranja-calango) !important;
+        .step:not(.active) .step-circle {
+            background: #f1f5f9;
+            color: #9ca3af;
+        }
+
+        .step-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--cinza-texto);
+        }
+
+        .step.active .step-label { color: var(--laranja); }
+
+        /* ── DIVIDER ── */
+        .divider-text {
+            text-align: center;
+            color: var(--cinza-texto);
+            font-size: 0.8rem;
+            margin: 20px 0 16px;
+        }
+
+        /* ── ALERTS ── */
+        .alert-success-custom {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: 14px;
+            padding: 28px;
+            text-align: center;
+        }
+
+        .success-icon-wrap {
+            width: 72px;
+            height: 72px;
+            background: #16a34a;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .alert-erro {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #dc2626;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* ── FOOTER ── */
+        .page-footer {
+            text-align: center;
+            padding: 32px 16px;
+            color: var(--cinza-texto);
+            font-size: 0.8rem;
+        }
+
+        .page-footer a {
+            color: var(--laranja);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 600px) {
+            .main-card { padding: 24px 20px; border-radius: 16px; }
+            .hero-header { padding: 36px 16px 70px; }
         }
     </style>
 </head>
 
-<body class="d-flex align-items-center justify-content-center">
+<body>
 
-    <div class="cadastro-container p-3">
-        <div class="card p-4">
-            <div class="text-center mb-4">
-                <div class="mb-2">
-                    <img src="../static/images/calango.png" th:src="@{/images/calango.png}" alt="Mascote Calango"
-                        class="mascote-img">
+    <!-- HERO HEADER -->
+    <div class="hero-header">
+        <div class="hero-logo">
+            <img src="../static/images/calango.png" th:src="@{/images/calango.png}" alt="Skink">
+        </div>
+        <h1>Cadastre seu negócio</h1>
+        <p>Preencha seus dados e nossa equipe entrará em contato para concluir seu cadastro e configurar sua conta.</p>
+    </div>
+
+    <!-- CARD PRINCIPAL -->
+    <div class="main-card">
+
+        <!-- MENSAGEM DE SUCESSO -->
+        <div th:if="${enviado}" class="alert-success-custom">
+            <div class="success-icon-wrap">
+                <i class="fa-solid fa-check fa-2x text-white"></i>
+            </div>
+            <h5 class="fw-bold text-success mb-2">Solicitação enviada com sucesso!</h5>
+            <p class="text-muted small mb-3">
+                Recebemos seus dados. Nossa equipe irá analisar sua solicitação e entrará em contato pelo e-mail ou telefone informados em até <strong>1 dia útil</strong>.
+            </p>
+            <a th:href="@{/login}" href="login.html" class="btn btn-sm btn-outline-success fw-semibold px-4">
+                <i class="fa-solid fa-arrow-right me-1"></i> Ir para o login
+            </a>
+        </div>
+
+        <!-- FORMULÁRIO -->
+        <div th:if="${!enviado}">
+
+            <!-- STEPS -->
+            <div class="steps-row">
+                <div class="step active">
+                    <div class="step-circle"><i class="fa-solid fa-file-pen fa-xs"></i></div>
+                    <div class="step-label">Seus dados</div>
                 </div>
-                <h4 class="fw-bold text-dark">Crie sua conta</h4>
-                <p class="text-muted small">Comece a controlar suas finanças hoje mesmo</p>
+                <div class="step">
+                    <div class="step-circle"><i class="fa-solid fa-magnifying-glass fa-xs"></i></div>
+                    <div class="step-label">Análise</div>
+                </div>
+                <div class="step">
+                    <div class="step-circle"><i class="fa-solid fa-rocket fa-xs"></i></div>
+                    <div class="step-label">Acesso</div>
+                </div>
             </div>
 
-            <div th:if="${erro}" class="alert alert-danger p-2 small d-flex align-items-center mb-3" role="alert">
-                <i class="fa-solid fa-circle-exclamation me-2"></i>
-                <div th:text="${erro}">E-mail já cadastrado no sistema.</div>
+            <!-- TRUST BADGES -->
+            <div class="trust-row">
+                <span class="trust-badge"><i class="fa-solid fa-shield-halved"></i> Dados seguros</span>
+                <span class="trust-badge"><i class="fa-solid fa-clock"></i> Resposta em 24h</span>
+                <span class="trust-badge"><i class="fa-solid fa-headset"></i> Suporte incluso</span>
             </div>
 
-            <form th:action="@{/cadastro}" th:object="${usuarioDTO}" method="POST">
+            <!-- ERRO -->
+            <div th:if="${erro}" class="alert-erro">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span th:text="${erro}">Erro ao enviar solicitação.</span>
+            </div>
 
-                <div class="mb-3">
-                    <label for="nome" class="form-label text-muted small fw-bold">Nome Completo</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 text-muted">
-                            <i class="fa-solid fa-id-card"></i>
-                        </span>
-                        <input type="text" id="nome" th:field="*{nome}" class="form-control border-start-0"
-                            placeholder="Seu nome" required autofocus>
+            <!-- FORMULÁRIO -->
+            <form th:action="@{/cadastro}" method="POST" id="formSolicitacao" novalidate>
+
+                <div class="row g-3">
+
+                    <!-- Nome do Responsável -->
+                    <div class="col-12">
+                        <label for="nomeResponsavel" class="form-label">
+                            <i class="fa-solid fa-user text-muted me-1"></i> Nome do Responsável
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                            <input type="text"
+                                   id="nomeResponsavel"
+                                   name="nomeResponsavel"
+                                   class="form-control"
+                                   placeholder="Seu nome completo"
+                                   required
+                                   autofocus>
+                        </div>
                     </div>
+
+                    <!-- Nome do Estabelecimento -->
+                    <div class="col-12">
+                        <label for="nomeEstabelecimento" class="form-label">
+                            <i class="fa-solid fa-store text-muted me-1"></i> Nome do Estabelecimento
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-building"></i></span>
+                            <input type="text"
+                                   id="nomeEstabelecimento"
+                                   name="nomeEstabelecimento"
+                                   class="form-control"
+                                   placeholder="Nome do seu negócio"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- CPF / CNPJ -->
+                    <div class="col-sm-6">
+                        <label for="cpfCnpj" class="form-label">
+                            CPF ou CNPJ
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-id-card"></i></span>
+                            <input type="text"
+                                   id="cpfCnpj"
+                                   name="cpfCnpj"
+                                   class="form-control"
+                                   placeholder="000.000.000-00"
+                                   required
+                                   maxlength="18">
+                        </div>
+                    </div>
+
+                    <!-- Telefone -->
+                    <div class="col-sm-6">
+                        <label for="telefone" class="form-label">
+                            Telefone / WhatsApp
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                            <input type="tel"
+                                   id="telefone"
+                                   name="telefone"
+                                   class="form-control"
+                                   placeholder="(00) 99999-9999"
+                                   required>
+                        </div>
+                    </div>
+
+                    <!-- E-mail -->
+                    <div class="col-12">
+                        <label for="email" class="form-label">
+                            E-mail para contato
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email"
+                                   id="email"
+                                   name="email"
+                                   class="form-control"
+                                   placeholder="exemplo@seunegocio.com"
+                                   required>
+                        </div>
+                    </div>
+
                 </div>
 
-                <div class="mb-3">
-                    <label for="email" class="form-label text-muted small fw-bold">E-mail</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 text-muted">
-                            <i class="fa-solid fa-envelope"></i>
-                        </span>
-                        <input type="email" id="email" th:field="*{email}" class="form-control border-start-0"
-                            placeholder="exemplo@email.com" required>
-                    </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="celular" class="form-label text-muted small fw-bold">Celular / WhatsApp</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 text-muted">
-                            <i class="fa-solid fa-phone"></i>
-                        </span>
-                        <input type="tel" id="celular" th:field="*{celular}" class="form-control border-start-0"
-                            placeholder="(00) 99999-9999" required>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="password" class="form-label text-muted small fw-bold">Senha</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 text-muted">
-                            <i class="fa-solid fa-lock"></i>
-                        </span>
-                        <input type="password" id="password" th:field="*{password}" class="form-control border-start-0"
-                            placeholder="Crie uma senha segura" required>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-calango w-100 fw-bold py-2 mb-3">
-                    Cadastrar Conta <i class="fa-solid fa-user-plus ms-1"></i>
+                <!-- BOTÃO ENVIAR -->
+                <button type="submit" class="btn-enviar mt-4">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    Enviar Solicitação
                 </button>
 
-                <div class="text-center">
-                    <span class="text-muted small">Já tem uma conta? </span>
-                    <a th:href="@{/login}" href="login.html"
-                        class="text-decoration-none small fw-bold text-calango">Faça Login</a>
-                </div>
+                <p class="text-center text-muted mt-3" style="font-size:0.78rem;">
+                    Ao enviar, você concorda com nossos termos de uso e política de privacidade.
+                </p>
+
             </form>
+
+            <!-- DIVIDER -->
+            <div class="divider-text">
+                <span>Já possui uma conta?</span>
+            </div>
+
+            <div class="text-center">
+                <a th:href="@{/login}" href="login.html"
+                   style="color:var(--laranja); font-weight:700; font-size:0.9rem; text-decoration:none;">
+                    <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Acessar o sistema
+                </a>
+            </div>
+
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <!-- FOOTER -->
+    <div class="page-footer">
+        <p>&copy; 2025 Skink Gestão. Todos os direitos reservados.</p>
+        <p class="mt-1">Dúvidas? Fale conosco: <a href="mailto:contato@skink.com">contato@skink.com</a></p>
+    </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Máscara CPF/CNPJ
+        document.getElementById('cpfCnpj').addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length <= 11) {
+                v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            } else {
+                v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+                v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+                v = v.replace(/\.(\d{3})(\d)/, '.$1/$2');
+                v = v.replace(/(\d{4})(\d)/, '$1-$2');
+            }
+            e.target.value = v;
+        });
+
+        // Máscara telefone
+        document.getElementById('telefone').addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '');
+            v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+            v = v.replace(/(\d)(\d{4})$/, '$1-$2');
+            e.target.value = v;
+        });
+
+        // Validação visual
+        document.getElementById('formSolicitacao').addEventListener('submit', function (e) {
+            const inputs = this.querySelectorAll('[required]');
+            let valido = true;
+            inputs.forEach(i => {
+                if (!i.value.trim()) {
+                    i.style.borderColor = '#dc2626';
+                    valido = false;
+                } else {
+                    i.style.borderColor = '';
+                }
+            });
+            if (!valido) {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
+    </script>
+
+</body>
 </html>

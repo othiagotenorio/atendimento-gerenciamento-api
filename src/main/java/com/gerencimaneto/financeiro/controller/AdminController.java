@@ -10,6 +10,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.gerencimaneto.financeiro.dto.AdminDashboardDTO;
 import com.gerencimaneto.financeiro.dto.ClienteDetalheDTO;
 import com.gerencimaneto.financeiro.model.Cliente;
+import com.gerencimaneto.financeiro.model.SolicitacaoCadastro;
+import com.gerencimaneto.financeiro.repository.SolicitacaoCadastroRepository;
 import com.gerencimaneto.financeiro.service.AdminService;
 
 import java.util.List;
@@ -21,6 +23,9 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private SolicitacaoCadastroRepository solicitacaoRepository;
 
     // Verificação de acesso ADMIN (usado em todos os endpoints)
     private boolean isAdmin(HttpSession session) {
@@ -199,5 +204,73 @@ public class AdminController {
         adminService.excluirCliente(id);
         redirectAttributes.addFlashAttribute("sucesso", "Cliente excluído com sucesso!");
         return "redirect:/admin/clientes";
+    }
+
+    // ========================
+    // SOLICITAÇÕES DE CADASTRO
+    // ========================
+
+    @GetMapping("/solicitacoes")
+    public String listarSolicitacoes(HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/login";
+
+        List<SolicitacaoCadastro> todas = solicitacaoRepository.findAllByOrderByDataSolicitacaoDesc();
+        model.addAttribute("solicitacoes", todas);
+        model.addAttribute("totalPendentes", solicitacaoRepository.countByStatus(SolicitacaoCadastro.Status.PENDENTE));
+        model.addAttribute("totalEmAnalise", solicitacaoRepository.countByStatus(SolicitacaoCadastro.Status.EM_ANALISE));
+        model.addAttribute("totalAprovados", solicitacaoRepository.countByStatus(SolicitacaoCadastro.Status.APROVADO));
+        model.addAttribute("totalRejeitados", solicitacaoRepository.countByStatus(SolicitacaoCadastro.Status.REJEITADO));
+        return "admin-solicitacoes";
+    }
+
+    @GetMapping("/solicitacoes/{id}/analisar")
+    public String marcarEmAnalise(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/login";
+        solicitacaoRepository.findById(id).ifPresent(s -> {
+            s.setStatus(SolicitacaoCadastro.Status.EM_ANALISE);
+            solicitacaoRepository.save(s);
+        });
+        ra.addFlashAttribute("sucesso", "Solicitação marcada como Em Análise.");
+        return "redirect:/admin/solicitacoes";
+    }
+
+    @GetMapping("/solicitacoes/{id}/aprovar")
+    public String aprovarSolicitacao(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/login";
+        Optional<SolicitacaoCadastro> opt = solicitacaoRepository.findById(id);
+        if (opt.isEmpty()) return "redirect:/admin/solicitacoes";
+
+        SolicitacaoCadastro sol = opt.get();
+        sol.setStatus(SolicitacaoCadastro.Status.APROVADO);
+        solicitacaoRepository.save(sol);
+
+        // Cria o cliente automaticamente com senha inicial
+        Cliente cliente = new Cliente();
+        cliente.setNomeEmpresa(sol.getNomeEstabelecimento());
+        cliente.setNomeResponsavel(sol.getNomeResponsavel());
+        cliente.setEmail(sol.getEmail());
+        cliente.setTelefone(sol.getTelefone());
+        cliente.setCpf(sol.getCpfCnpj());
+        cliente.setPlano("BASICO");
+        cliente.setStatus("ATIVO");
+        cliente.setSenha("primeiroAcesso@" + id); // senha temporária
+        cliente.setPrimeiroAcesso(true);
+        adminService.salvarCliente(cliente);
+
+        ra.addFlashAttribute("sucesso",
+            "Solicitação aprovada! Cliente criado com senha temporária: primeiroAcesso@" + id +
+            " — o cliente deverá trocá-la no primeiro acesso.");
+        return "redirect:/admin/solicitacoes";
+    }
+
+    @GetMapping("/solicitacoes/{id}/rejeitar")
+    public String rejeitarSolicitacao(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/login";
+        solicitacaoRepository.findById(id).ifPresent(s -> {
+            s.setStatus(SolicitacaoCadastro.Status.REJEITADO);
+            solicitacaoRepository.save(s);
+        });
+        ra.addFlashAttribute("erro", "Solicitação rejeitada.");
+        return "redirect:/admin/solicitacoes";
     }
 }

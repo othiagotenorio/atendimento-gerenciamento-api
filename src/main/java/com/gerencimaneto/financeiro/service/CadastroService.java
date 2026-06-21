@@ -20,7 +20,7 @@ public class CadastroService {
         Optional<Usuario> usuarioExistente = usuarioRepository.findByEmail(dto.getEmail());
         if (usuarioExistente.isPresent()) {
             // Lançamos uma exceção para o Controller capturar e exibir na tela
-            throw new IllegalArgumentException("Este e-mail já está cadastrado no Calango!");
+            throw new IllegalArgumentException("Este e-mail já está cadastrado no Skink!");
         }
 
         Usuario novoUsuario = converterDToParaEntidade(dto);

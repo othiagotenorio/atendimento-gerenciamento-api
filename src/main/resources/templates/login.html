@@ -1,141 +1,519 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Calango Gerenciamento Financeiro</title>
+    <title>Login - Skink Gerenciamento Financeiro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --laranja-calango: #ff6b00;
-            --cinza-escuro: #212529;
+            --laranja-calango: #FCA311;
+            --laranja-hover: #d98500;
+            --laranja-light: rgba(252, 163, 17, 0.1);
+            --cinza-escuro: #14213D;
+            --cinza-texto: #64748b;
+            --cinza-bg: #E5E5E5;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            background-color: #f8f9fa;
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .login-container {
-            max-width: 400px;
+        .split-container {
+            display: flex;
+            min-height: 100vh;
             width: 100%;
         }
 
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        /* Lado Esquerdo - Institucional */
+        .editorial-section {
+            flex: 1.1;
             position: relative;
-            /* Importante para posicionar a seta */
+            background-image: linear-gradient(135deg, rgba(20, 33, 61, 0.9) 0%, rgba(252, 163, 17, 0.6) 100%), 
+                              url('/images/login-editorial-digitando.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 60px;
+            color: #ffffff;
         }
 
-        /* Estilização para o Mascote ficar perfeito no topo */
-        .mascote-img {
-            max-width: 120px;
+        .editorial-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 2;
+        }
+
+        .editorial-logo {
+            max-width: 50px;
             height: auto;
             object-fit: contain;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
         }
 
-        /* Nova estilização da seta de voltar */
+        .system-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .editorial-content {
+            z-index: 2;
+            max-width: 580px;
+            margin-top: auto;
+            margin-bottom: auto;
+        }
+
+        .editorial-slogan {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .editorial-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+        }
+
+        .editorial-footer {
+            z-index: 2;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Lado Direito - Card de Login */
+        .login-section {
+            flex: 0.9;
+            background-color: var(--cinza-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
         .btn-voltar {
             position: absolute;
-            top: 20px;
-            left: 20px;
-            color: #6c757d;
-            font-size: 1.2rem;
-            transition: 0.3s;
+            top: 40px;
+            left: 40px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--cinza-texto);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
             text-decoration: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            z-index: 10;
         }
 
         .btn-voltar:hover {
             color: var(--laranja-calango);
+            border-color: var(--laranja-calango);
+            transform: translateX(-3px);
+            box-shadow: 0 4px 8px rgba(255, 107, 0, 0.1);
         }
 
-        /* Cores do Calango para os botões e links */
-        .btn-calango {
-            background-color: var(--laranja-calango);
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: #ffffff;
+            padding: 45px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .login-header h2 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--cinza-escuro);
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            font-size: 0.95rem;
+            color: var(--cinza-texto);
+            margin-bottom: 30px;
+        }
+
+        .input-group-custom {
+            position: relative;
+            margin-bottom: 22px;
+        }
+
+        .input-group-custom label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--cinza-escuro);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 45px 12px 45px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border-color);
+            background-color: #ffffff;
+            font-size: 0.95rem;
+            color: var(--cinza-escuro);
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--laranja-calango);
+            box-shadow: 0 0 0 4px var(--laranja-light);
+            background-color: #ffffff;
+        }
+
+        .input-icon-left {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--cinza-texto);
+            font-size: 1rem;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .input-wrapper input:focus ~ .input-icon-left {
+            color: var(--laranja-calango);
+        }
+
+        .btn-toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
             border: none;
-            color: white;
-            font-weight: bold;
+            background: none;
+            color: var(--cinza-texto);
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: color 0.3s ease;
         }
 
-        .btn-calango:hover {
-            background-color: #e05e00;
-            color: white;
+        .btn-toggle-password:hover {
+            color: var(--laranja-calango);
         }
 
-        .text-calango {
-            color: var(--laranja-calango) !important;
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--cinza-escuro);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-container input {
+            cursor: pointer;
+            accent-color: var(--laranja-calango);
+            width: 16px;
+            height: 16px;
+        }
+
+        .link-esqueceu {
+            color: var(--cinza-texto);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .link-esqueceu:hover {
+            color: var(--laranja-calango);
+            text-decoration: underline;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--laranja-calango) 0%, #ff8c00 100%);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 107, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 0, 0.3);
+            background: linear-gradient(135deg, var(--laranja-hover) 0%, var(--laranja-calango) 100%);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .register-prompt {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.88rem;
+            color: var(--cinza-texto);
+        }
+
+        .register-link {
+            color: var(--laranja-calango);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .register-link:hover {
+            color: var(--laranja-hover);
+            text-decoration: underline;
+        }
+
+        /* Alertas */
+        .alert-custom {
+            border-radius: 12px;
+            padding: 14px 18px;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 22px;
+            border: 1px solid transparent;
+        }
+
+        .alert-custom-danger {
+            background-color: #fef2f2;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        .alert-custom-success {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #15803d;
+        }
+
+        .alert-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .editorial-section {
+                display: none;
+            }
+            .login-section {
+                flex: 1;
+                padding: 20px;
+            }
+            .btn-voltar {
+                top: 20px;
+                left: 20px;
+            }
         }
     </style>
 </head>
+<body>
 
-<body class="d-flex align-items-center justify-content-center">
+    <div class="split-container">
+        
+        <!-- Lado Esquerdo: Institucional -->
+        <section class="editorial-section">
+            <div class="editorial-header">
+                <img src="../static/images/calango.png" th:src="@{/images/calango.png}" alt="Skink Logo" class="editorial-logo">
+                <span class="system-name">SKINK</span>
+            </div>
+            
+            <div class="editorial-content">
+                <h1 class="editorial-slogan">Gerencie seu negócio de forma simples e profissional.</h1>
+                <p class="editorial-desc">Controle agendamentos, clientes, serviços, financeiro e relatórios em um único lugar.</p>
+            </div>
+            
+            <div class="editorial-footer">
+                &copy; 2026 Skink Financeiro. Todos os direitos reservados.
+            </div>
+        </section>
 
-    <div class="login-container p-3">
-        <div class="card p-4">
-
+        <!-- Lado Direito: Login -->
+        <section class="login-section">
+            
             <a th:href="@{/}" class="btn-voltar" title="Voltar para a Página Inicial">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
 
-            <div class="text-center mb-4">
-                <div class="mb-2">
-                    <img src="../static/images/calango.png" th:src="@{/images/calango.png}" alt="Mascote Calango"
-                        class="mascote-img">
+            <div class="login-card">
+                <div class="login-header">
+                    <h2>Bem-vindo de volta</h2>
+                    <p>Entre com suas credenciais para acessar sua conta.</p>
                 </div>
-                <h4 class="fw-bold text-dark">Credenciais de Acesso</h4>
-                <p class="text-muted small">Digite seu e-mail e senha cadastrados</p>
+
+                <!-- Tratamento visual para erro geral / login inválido -->
+                <div th:if="${param.error}" class="alert-custom alert-custom-danger">
+                    <i class="fa-solid fa-circle-exclamation alert-icon"></i>
+                    <div>E-mail ou senha inválidos. Por favor, tente novamente.</div>
+                </div>
+
+                <div th:if="${erro}" class="alert-custom alert-custom-danger">
+                    <i class="fa-solid fa-circle-exclamation alert-icon"></i>
+                    <div th:text="${erro}">Erro</div>
+                </div>
+
+                <!-- Tratamento visual para logout realizado com sucesso -->
+                <div th:if="${param.logout}" class="alert-custom alert-custom-success">
+                    <i class="fa-solid fa-circle-check alert-icon"></i>
+                    <div>Você saiu do sistema com sucesso.</div>
+                </div>
+
+                <form th:action="@{/login}" method="POST" id="loginForm">
+                    
+                    <!-- Campo E-mail -->
+                    <div class="input-group-custom">
+                        <label for="username">E-mail</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="username" name="username" required autofocus placeholder="seu@email.com">
+                            <i class="fa-solid fa-envelope input-icon-left"></i>
+                        </div>
+                    </div>
+
+                    <!-- Campo Senha -->
+                    <div class="input-group-custom">
+                        <label for="password">Senha</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" required placeholder="Digite sua senha">
+                            <i class="fa-solid fa-lock input-icon-left"></i>
+                            <button type="button" class="btn-toggle-password" id="togglePasswordBtn" title="Mostrar/Ocultar Senha">
+                                <i class="fa-solid fa-eye" id="passwordEyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Opções Adicionais -->
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" name="remember-me" id="rememberMe">
+                            <span>Lembrar-me</span>
+                        </label>
+                        <a th:href="@{/esqueci-senha}" class="link-esqueceu">Esqueceu a senha?</a>
+                    </div>
+
+                    <!-- Botão Principal -->
+                    <button type="submit" class="btn-submit" id="btnSubmit">
+                        <span id="btnText">Acessar Sistema</span>
+                        <div class="spinner" id="btnSpinner"></div>
+                    </button>
+
+                    <div class="register-prompt">
+                        <span>Não tem uma conta? </span>
+                        <a th:href="@{/cadastro}" class="register-link">Cadastre-se</a>
+                    </div>
+                </form>
             </div>
+        </section>
 
-            <div th:if="${param.error}" class="alert alert-danger p-2 small d-flex align-items-center mb-3"
-                role="alert">
-                <i class="fa-solid fa-circle-exclamation me-2"></i>
-                <div>Usuário ou senha inválidos.</div>
-            </div>
-
-            <div th:if="${param.logout}" class="alert alert-success p-2 small d-flex align-items-center mb-3"
-                role="alert">
-                <i class="fa-solid fa-circle-check me-2"></i>
-                <div>Você saiu do sistema com sucesso.</div>
-            </div>
-
-            <form th:action="@{/login}" method="POST">
-
-                <div th:if="${erro}" class="alert alert-danger p-2 small">
-                    <span th:text="${erro}">Erro</span>
-                </div>
-
-                <div class="mb-3">
-                    <label for="username" class="form-label">E-mail</label>
-                    <input type="email" id="username" name="username" class="form-control" required autofocus
-                        placeholder="seu@email.com">
-                </div>
-
-                <div class="mb-2">
-                    <label for="password" class="form-label">Senha</label>
-                    <input type="password" id="password" name="password" class="form-control" required
-                        placeholder="Sua senha">
-                </div>
-
-                <div class="mb-4 d-flex justify-content-end">
-                    <a th:href="@{/esqueci-senha}" class="text-decoration-none small text-muted">Esqueci a senha</a>
-                </div>
-
-                <button type="submit" class="btn btn-calango w-100">Entrar</button>
-
-                <div class="text-center mt-3">
-                    <span class="text-muted small">Não tem uma conta? </span>
-                    <a th:href="@{/cadastro}" class="text-decoration-none small fw-bold text-calango">Cadastre-se</a>
-                </div>
-            </form>
-        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+            const passwordEyeIcon = document.getElementById('passwordEyeIcon');
+            const loginForm = document.getElementById('loginForm');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
 
+            // Mostrar/Ocultar Senha
+            if (togglePasswordBtn && passwordInput && passwordEyeIcon) {
+                togglePasswordBtn.addEventListener('click', function() {
+                    const isPassword = passwordInput.getAttribute('type') === 'password';
+                    passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                    
+                    // Altera classes do ícone do olho
+                    passwordEyeIcon.className = isPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+                });
+            }
+
+            // Indicador de Carregamento ao Submeter
+            if (loginForm && btnSubmit && btnText && btnSpinner) {
+                loginForm.addEventListener('submit', function() {
+                    btnSubmit.disabled = true;
+                    btnText.textContent = 'Acessando...';
+                    btnSpinner.style.display = 'block';
+                });
+            }
+        });
+    </script>
+</body>
 </html>

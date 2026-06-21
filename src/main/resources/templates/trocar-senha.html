@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Definir Nova Senha - Calango</title>
+    <title>Definir Nova Senha - Skink</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&display=swap" rel="stylesheet">
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,7 +29,7 @@
             position: fixed;
             top: -80px; right: -80px;
             width: 340px; height: 340px;
-            background: radial-gradient(circle, rgba(255,107,0,0.07) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(252,163,17,0.07) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
         }
@@ -39,7 +39,7 @@
             position: fixed;
             bottom: -100px; left: -60px;
             width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(251,191,36,0.08) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(252,163,17,0.08) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
         }
@@ -84,14 +84,14 @@
         .auth-card {
             background: #ffffff;
             border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(255,107,0,0.12), 0 4px 16px rgba(0,0,0,0.06);
+            box-shadow: 0 20px 50px rgba(252,163,17,0.12), 0 4px 16px rgba(0,0,0,0.06);
             overflow: hidden;
-            border: 1px solid rgba(255,107,0,0.08);
+            border: 1px solid rgba(252,163,17,0.08);
         }
 
-        /* HEADER — gradiente laranja Calango */
+        /* HEADER — gradiente azul Skink */
         .card-header-custom {
-            background: linear-gradient(135deg, #e65c00 0%, #ff6b00 50%, #ff8c42 100%);
+            background: linear-gradient(135deg, #14213D 0%, #1c2e54 100%);
             padding: 28px 32px;
             text-align: center;
             position: relative;
@@ -157,7 +157,7 @@
             padding: 12px 16px;
             background: #fff8f0;
             border-radius: 10px;
-            border-left: 3px solid #ff6b00;
+            border-left: 3px solid #FCA311;
         }
 
         .greeting span {
@@ -204,8 +204,8 @@
 
         .form-control:focus {
             outline: none;
-            border-color: #ff6b00;
-            box-shadow: 0 0 0 3px rgba(255,107,0,0.12);
+            border-color: #FCA311;
+            box-shadow: 0 0 0 3px rgba(252,163,17,0.12);
             background: #fff;
         }
 
@@ -223,7 +223,7 @@
             transition: color 0.18s;
         }
 
-        .toggle-senha:hover { color: #ff6b00; }
+        .toggle-senha:hover { color: #FCA311; }
 
         /* INDICADOR DE FORÇA */
         .strength-bar {
@@ -264,7 +264,7 @@
         /* BOTÃO — laranja Calango */
         .btn-definir {
             width: 100%;
-            background: linear-gradient(135deg, #e65c00, #ff6b00);
+            background: linear-gradient(135deg, #14213D, #FCA311);
             color: white;
             border: none;
             border-radius: 11px;
@@ -279,8 +279,8 @@
         }
 
         .btn-definir:hover {
-            background: linear-gradient(135deg, #c2410c, #e65c00);
-            box-shadow: 0 6px 20px rgba(255,107,0,0.35);
+            background: linear-gradient(135deg, #14213D, #e08d00);
+            box-shadow: 0 6px 20px rgba(252,163,17,0.35);
             transform: translateY(-1px);
         }
 
@@ -314,8 +314,9 @@
         .req-ok { color: #16a34a; }
         .req-fail { color: #d1d5db; }
 
-        /* Logo Calango no topo do header */
+        /* Logo Skink no topo do header */
         .calango-brand {
+            font-family: 'Montserrat', sans-serif;
             font-size: 0.72rem;
             font-weight: 800;
             letter-spacing: 2.5px;
@@ -342,7 +343,7 @@
         <!-- CARD DE TROCA DE SENHA -->
         <div class="auth-card">
             <div class="card-header-custom">
-                <div class="calango-brand">&#128994; CALANGO</div>
+                <div class="calango-brand">&#128994; SKINK</div>
                 <div class="lock-icon-wrapper">
                     <i class="fa-solid fa-lock-open"></i>
                 </div>
@@ -368,7 +369,7 @@
                     <!-- Nova Senha -->
                     <div class="form-group">
                         <label class="form-label" for="novaSenha">
-                            <i class="fa-solid fa-key me-1" style="color:#ff6b00;"></i>Nova Senha
+                            <i class="fa-solid fa-key me-1" style="color:#FCA311;"></i>Nova Senha
                         </label>
                         <div class="input-wrapper">
                             <i class="fa-solid fa-lock input-icon"></i>
@@ -391,7 +392,7 @@
                     <!-- Confirmação -->
                     <div class="form-group">
                         <label class="form-label" for="confirmacao">
-                            <i class="fa-solid fa-shield-check me-1" style="color:#ff6b00;"></i>Confirmar Nova Senha
+                            <i class="fa-solid fa-shield-check me-1" style="color:#FCA311;"></i>Confirmar Nova Senha
                         </label>
                         <div class="input-wrapper">
                             <i class="fa-solid fa-lock input-icon"></i>

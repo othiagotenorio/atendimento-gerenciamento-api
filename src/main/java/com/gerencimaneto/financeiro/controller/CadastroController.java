@@ -1,41 +1,56 @@
 package com.gerencimaneto.financeiro.controller;
 
+import com.gerencimaneto.financeiro.model.SolicitacaoCadastro;
+import com.gerencimaneto.financeiro.repository.SolicitacaoCadastroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-
-import com.gerencimaneto.financeiro.dto.UsuarioCadastroDTO;
-import com.gerencimaneto.financeiro.service.CadastroService;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class CadastroController {
 
     @Autowired
-    private CadastroService cadastroService;
+    private SolicitacaoCadastroRepository solicitacaoRepository;
 
     @GetMapping("/cadastro")
-    public String exibirFormularioCadastro(Model model) {
-        model.addAttribute("usuarioDTO", new UsuarioCadastroDTO());
+    public String exibirFormulario(
+            @RequestParam(value = "enviado", required = false) String enviado,
+            Model model) {
+        model.addAttribute("enviado", enviado != null);
         return "cadastro";
     }
 
     @PostMapping("/cadastro")
-    public String cadastrarUsuario(@ModelAttribute("usuarioDTO") UsuarioCadastroDTO dto, Model model) {
-        try {
-            // O Controller apenas chama o Service e passa o DTO pra frente
-            cadastroService.cadastrarNovoUsuario(dto);
+    public String enviarSolicitacao(
+            @RequestParam("nomeResponsavel") String nomeResponsavel,
+            @RequestParam("nomeEstabelecimento") String nomeEstabelecimento,
+            @RequestParam("cpfCnpj") String cpfCnpj,
+            @RequestParam("email") String email,
+            @RequestParam("telefone") String telefone,
+            RedirectAttributes redirectAttributes) {
 
-            // Sucesso: Redireciona para o login
-            return "redirect:/login?sucessoCadastro";
+        // Verifica se já existe uma solicitação com esse e-mail ainda não rejeitada
+        boolean jaExiste = solicitacaoRepository.findAllByOrderByDataSolicitacaoDesc()
+                .stream()
+                .anyMatch(s -> s.getEmail().equalsIgnoreCase(email.trim())
+                        && s.getStatus() != SolicitacaoCadastro.Status.REJEITADO);
 
-        } catch (IllegalArgumentException e) {
-            // Se o Service barrar o e-mail, capturamos a mensagem e mandamos de volta pro
-            // HTML
-            model.addAttribute("erro", e.getMessage());
-            return "cadastro";
+        if (jaExiste) {
+            redirectAttributes.addFlashAttribute("erro",
+                    "Já existe uma solicitação cadastrada com este e-mail. Nossa equipe entrará em contato em breve.");
+            return "redirect:/cadastro";
         }
+
+        SolicitacaoCadastro sol = new SolicitacaoCadastro();
+        sol.setNomeResponsavel(nomeResponsavel.trim());
+        sol.setNomeEstabelecimento(nomeEstabelecimento.trim());
+        sol.setCpfCnpj(cpfCnpj.trim());
+        sol.setEmail(email.trim().toLowerCase());
+        sol.setTelefone(telefone.trim());
+        solicitacaoRepository.save(sol);
+
+        return "redirect:/cadastro?enviado=true";
     }
 }

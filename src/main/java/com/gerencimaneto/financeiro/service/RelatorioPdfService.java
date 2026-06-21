@@ -24,14 +24,13 @@ public class RelatorioPdfService {
             PdfWriter.getInstance(document, out);
             document.open();
 
-            Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, new Color(255, 107, 0)); // Laranja
-                                                                                                           // Calango
+            Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, new Color(252, 163, 17)); // Laranja Skink
             Font fontSubtitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, new Color(33, 37, 41));
             Font fontNormalBold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.BLACK);
             Font fontNormal = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK);
             Font fontHeader = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.WHITE);
 
-            Paragraph pTitulo = new Paragraph("CALANGO - SISTEMA FINANCEIRO", fontTitulo);
+            Paragraph pTitulo = new Paragraph("SKINK - SISTEMA FINANCEIRO", fontTitulo);
             pTitulo.setAlignment(Element.ALIGN_CENTER);
             pTitulo.setSpacingAfter(5);
             document.add(pTitulo);
@@ -80,10 +79,10 @@ public class RelatorioPdfService {
                                                                                  // data, hora, valor
 
             String[] headers = { "Cliente", "Serviço(s)", "Profissional", "Data", "Hora", "Valor" };
-            Color orangeCalango = new Color(255, 107, 0);
+            Color orangeSkink = new Color(252, 163, 17);
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header, fontHeader));
-                cell.setBackgroundColor(orangeCalango);
+                cell.setBackgroundColor(orangeSkink);
                 cell.setPadding(8);
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(cell);
